@@ -1,0 +1,3 @@
+# Исключаем файлы CMAKE и CLION
+.cmake
+.idea
