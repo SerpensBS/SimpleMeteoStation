@@ -1,0 +1,66 @@
+set(TOOLCHAIN_PREFIX arm-none-eabi-)
+
+set(CMAKE_C_COMPILER ${TOOLCHAIN_PREFIX}gcc)
+set(CMAKE_ASM_COMPILER ${CMAKE_C_COMPILER})
+set(CMAKE_CXX_COMPILER ${TOOLCHAIN_PREFIX}g++)
+set(CMAKE_OBJCOPY ${TOOLCHAIN_PREFIX}objcopy)
+set(CMAKE_OBJDUMP ${TOOLCHAIN_PREFIX}objdump)
+set(CMAKE_SIZE ${TOOLCHAIN_PREFIX}size)
+
+set(CPU_PARAMETERS
+        -mcpu=cortex-m3     # Процессорное ядро.
+        -mthumb             # Набор инструкция Thumb.
+        -mfloat-abi=soft    # Использовать программные инструкции при работе с плавающей точкой.
+        )
+
+# Из-за того, что мы собираем проект под микроконтроллер, а не под хост, нужно сообщить об этом CMAKE.
+set(CMAKE_TRY_COMPILE_TARGET_TYPE STATIC_LIBRARY)
+
+# Путь к CMSIS библиотеке.
+set(CMSIS_DIRECTORY ${CMAKE_SOURCE_DIR}/ext-libs/cmsis)
+
+# Уровень оптимизации компилятора.
+if(${CMAKE_BUILD_TYPE} MATCHES "DEBUG")
+    set(COMPILER_OPTIMIZATION -Og)
+else()
+    set(COMPILER_OPTIMIZATION -O2)
+endif()
+
+# Настройки компиляции.
+set(TARGET_COMPILE_OPTIONS
+        ${CPU_PARAMETERS}
+        ${COMPILER_OPTIMIZATION}# Уровень оптимизации.
+        -Wall                   # Показывать все предупреждения.
+        -fstack-usage           # Cгенерировать файл, в котором указан максимальный объем используемого стека
+        # для каждой функции.
+        -g                      # Добавить отладочную информацию.
+        # Следующие две опции помогают убирать неиспользуемый код если включен
+        # параметр --gc-sections в линкере.
+        -ffunction-sections     # Помещает каждую функцию (включая статические) в собственный раздел text.func_name.
+        -fdata-sections         # Помещает каждую глобальную и статическую переменную в собственный раздел.
+        -fno-exceptions         # Отключаем исключения для экономии ROM и ускорения работы.
+        -Wno-unknown-pragmas    # Подавляем ошибку о неизвестных pragma'х.
+
+        $<$<COMPILE_LANGUAGE:ASM>:
+        -c                      # Останавливает на стадии ассемблирования, но пропускает компоновку.
+        -x assembler-with-cpp>  # Явно указывает язык. Позволяет работать с файлами .s вместо .S
+
+        $<$<COMPILE_LANGUAGE:C>:
+        ${CMAKE_C_FLAGS}
+        -std=gnu11>             # Версия C.
+
+        $<$<COMPILE_LANGUAGE:CXX>:
+        ${CMAKE_CXX_FLAGS}
+        -std=gnu++17            # Версия C++.
+        -fuse-cxa-atexit        # Поддержка __cxa_atexit для статических деструкторов.
+        -Woverloaded-virtual    # Предупреждает о попытке дочернего класса перегрузить виртуальную функцию родителя.
+        >)
+
+# Настройки линковки.
+set(TARGET_LINKER_OPTIONS
+        ${CPU_PARAMETERS}
+        --specs=nosys.specs                                         # Подключения спец версий libc для мк (newlib)
+        --specs=nano.specs                                          # без поддержки многопоточности.
+        -Wl,--print-memory-usage                                    # Показывает использованную и оставшуюся память.
+        -Wl,--gc-sections
+        )
