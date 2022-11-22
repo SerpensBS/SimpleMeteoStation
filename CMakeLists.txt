@@ -1,3 +1,6 @@
+# Из-за того, что мы собираем проект под микроконтроллер, а не под хост, нужно сообщить об этом CMAKE.
+set(CMAKE_TRY_COMPILE_TARGET_TYPE STATIC_LIBRARY)
+
 cmake_minimum_required(VERSION 3.23)
 project(SimpleMeteoStation)
 
@@ -19,9 +22,13 @@ if(PLATFORM_NAME)
     set(CMAKE_LIBRARY_OUTPUT_DIRECTORY "${OUTPUT_DIRECTORY_PATH}")
     set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${OUTPUT_DIRECTORY_PATH}")
 
+    # Общие библиотеки.
+    add_subdirectory(application)
+
     # Определяем конечную цель в зависимости от целевой платформы.
     if(${PLATFORM_NAME} STREQUAL "Linux86")
     elseif (${PLATFORM_NAME} STREQUAL "STM32")
-        add_subdirectory(targets/stm32f103)
+        add_subdirectory(libs/cmsis)
+        add_subdirectory(targets/stm/stm32f103xB)
     endif()
 endif()

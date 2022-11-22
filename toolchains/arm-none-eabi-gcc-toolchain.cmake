@@ -13,14 +13,8 @@ set(CPU_PARAMETERS
         -mfloat-abi=soft    # Использовать программные инструкции при работе с плавающей точкой.
         )
 
-# Из-за того, что мы собираем проект под микроконтроллер, а не под хост, нужно сообщить об этом CMAKE.
-set(CMAKE_TRY_COMPILE_TARGET_TYPE STATIC_LIBRARY)
-
-# Путь к CMSIS библиотеке.
-set(CMSIS_DIRECTORY ${CMAKE_SOURCE_DIR}/ext-libs/cmsis)
-
 # Уровень оптимизации компилятора.
-if(${CMAKE_BUILD_TYPE} MATCHES "DEBUG")
+if(${CMAKE_BUILD_TYPE} MATCHES "Debug")
     set(COMPILER_OPTIMIZATION -Og)
 else()
     set(COMPILER_OPTIMIZATION -O2)
@@ -32,10 +26,10 @@ set(TARGET_COMPILE_OPTIONS
         ${COMPILER_OPTIMIZATION}# Уровень оптимизации.
         -Wall                   # Показывать все предупреждения.
         -fstack-usage           # Cгенерировать файл, в котором указан максимальный объем используемого стека
-        # для каждой функции.
+                                # для каждой функции.
         -g                      # Добавить отладочную информацию.
-        # Следующие две опции помогают убирать неиспользуемый код если включен
-        # параметр --gc-sections в линкере.
+                                # Следующие две опции помогают убирать неиспользуемый код если включен
+                                # параметр --gc-sections в линкере.
         -ffunction-sections     # Помещает каждую функцию (включая статические) в собственный раздел text.func_name.
         -fdata-sections         # Помещает каждую глобальную и статическую переменную в собственный раздел.
         -fno-exceptions         # Отключаем исключения для экономии ROM и ускорения работы.

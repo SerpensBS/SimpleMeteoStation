@@ -1,35 +1,26 @@
 # Название проекта и используемые языки.
-project(STM32F103 C CXX ASM)
+project(STM32F103xB C CXX ASM)
 
-file (GLOB_RECURSE SOURCE_FILES
-        *.cpp)
-
-file (GLOB_RECURSE HEADER_FILES
-        *.cpp)
+file (GLOB_RECURSE SOURCE_FILES *.cpp)
+file (GLOB_RECURSE HEADER_FILES *.h)
 
 add_executable(${PROJECT_NAME} ${SOURCE_FILES} ${HEADER_FILES})
 
-# Глобальный define для контроллера STM32F103C8T6, нужен для CMSIS.
-add_definitions(-DSTM32F103xB)
+# Подключаем Application.
+target_link_libraries(${PROJECT_NAME} PRIVATE Application)
 
-# Заголовочные файлы CMSIS.
-set(CMSIS_INCLUDE_DIRECTORIES
-        ${CMSIS_DIRECTORY}/arm
-        ${CMSIS_DIRECTORY}/stm/includes)
+# Подключаем CMSIS. Также указываем глобальный define для контроллера STM32F103C8T6.
+target_compile_definitions(CMSIS PUBLIC -DSTM32F103xB)
+target_link_libraries(${PROJECT_NAME} PRIVATE CMSIS)
 
 # Стартовые файлы CMSIS.
-set(CMSIS_STARTUP_FILES
-        ${CMSIS_DIRECTORY}/stm/system_stm32f1xx.c
-        ${CMSIS_DIRECTORY}/stm/startup_stm32f103xb.s)
+set(CMSIS_STARTUP_FILES startup/startup_stm32f103xb.s)
 
 # Скрипт linker'а.
-set(MCU_LINKER_SCRIPT ${CMSIS_DIRECTORY}/stm/STM32F103XB_FLASH.ld)
+set(MCU_LINKER_SCRIPT ${CMAKE_CURRENT_SOURCE_DIR}/startup/STM32F103XB_FLASH.ld)
 
 # Добавляем к исходникам startup файлы из CMSIS.
 target_sources(${PROJECT_NAME} PRIVATE ${CMSIS_STARTUP_FILES})
-
-# Подключаем заголовочные файлы CMSIS.
-target_include_directories(${PROJECT_NAME} PRIVATE ${CMSIS_INCLUDE_DIRECTORIES})
 
 # Настройки компиляции.
 target_compile_options(${PROJECT_NAME} PRIVATE ${TARGET_COMPILE_OPTIONS})
