@@ -17,10 +17,10 @@
   - EEPROM [AT24C04](https://ww1.microchip.com/downloads/en/devicedoc/doc0180.pdf)
   - Кварцевый резонатор 8MHz
   - Кварцевый резонатор 32.768KHz
-  - Датчик температуры и давления 
-    [BMP280](https://www.bosch-sensortec.com/media/boschsensortec/downloads/datasheets/bst-bmp280-ds001.pdf)
-  - OLED I2C дисплей 128x64 
-    [SSD1306](https://cdn-shop.adafruit.com/datasheets/SSD1306.pdf)
+- Датчик температуры и давления 
+  [BMP280](https://www.bosch-sensortec.com/media/boschsensortec/downloads/datasheets/bst-bmp280-ds001.pdf)
+- OLED I2C дисплей 128x64 
+  [SSD1306](https://cdn-shop.adafruit.com/datasheets/SSD1306.pdf)
 
 ## Питание
 
@@ -50,8 +50,8 @@ toolchains и настраиваем утилиты/флаги
     - **-S** - директория с корневым CMakeLists.txt
     - **-B** - директория, куда будет записан сгенерированный cmake код.
 4.  Сборка проекта. В параметрах для cmake необходимо указать:
-    - **\-\- build** - директория, которую указали в параметре -B предыдущего шага
-    - **\-\- target** - одна из библиотек из папки target, например STM32F103xB
+    - **\-\-build** - директория, которую указали в параметре -B предыдущего шага
+    - **\-\-target** - одна из библиотек из папки target, например STM32F103xB
 5.  Готовый .hex файл прошивки можно найти по пути, который CMAKE генерирует для этих целей 
 по маске SimpleMeteoStation/build/${PLATFORM\_NAME}/${CMAKE\_BUILD_TYPE}. 
 
