@@ -24,5 +24,13 @@ int main()
 
 	// Запускаем приложение.
 	application->Run();
+
+/**
+ * Основная логика приложения не должна дать нам попасть сюда, поэтому, мы допускаем, что данный код никогда
+ * не будет выполнен.
+ */
+#pragma clang diagnostic push
+#pragma ide diagnostic ignored "UnreachableCode"
 	return 0;
+#pragma clang diagnostic pop
 }

@@ -56,6 +56,12 @@ namespace STM32F103XB
 		return Middleware::ReturnCode::OK;
 	}
 
+/**
+ * Я бы не хотел, чтобы этот метод можно было вызвать статически, но он должен быть доступен коду, владеющему
+ * экземпляром класса.
+ */
+#pragma clang diagnostic push
+#pragma ide diagnostic ignored "readability-convert-member-functions-to-static"
 	/**
 	 * Устанавливает пред-делитель AHB.
 	 * @param target_HCLK Целевая частота AHB
@@ -75,30 +81,45 @@ namespace STM32F103XB
 
 		return Middleware::ReturnCode::OK;
 	}
+#pragma clang diagnostic pop
 
+/**
+ * Я бы не хотел, чтобы этот метод можно было вызвать статически, но он должен быть доступен коду, владеющему
+ * экземпляром класса.
+ */
+#pragma clang diagnostic push
+#pragma ide diagnostic ignored "readability-convert-member-functions-to-static"
 	/**
 	 * Возвращает частоту APB1 (PCLK1).
 	 * @return PCLK1
 	 */
-	uint32_t RCCDriver::GetAPB1Clock()
+	[[maybe_unused]] uint32_t RCCDriver::GetAPB1Clock()
 	{
 		// Получаем частоту AHB.
 		SystemCoreClockUpdate();
 		// Рассчитываем APB1 по таблице.
 		return SystemCoreClock>>APBPrescTable[(RCC->CFGR & RCC_CFGR_PPRE1) >> RCC_CFGR_PPRE1_Pos];
 	}
+#pragma clang diagnostic pop
 
+/**
+ * Я бы не хотел, чтобы этот метод можно было вызвать статически, но он должен быть доступен коду, владеющему
+ * экземпляром класса.
+ */
+#pragma clang diagnostic push
+#pragma ide diagnostic ignored "readability-convert-member-functions-to-static"
 	/**
 	 * Возвращает частоту APB2 (PCLK2).
 	 * @return PCLK2
 	 */
-	uint32_t RCCDriver::GetAPB2Clock()
+	[[maybe_unused]] uint32_t RCCDriver::GetAPB2Clock()
 	{
 		// Получаем частоту AHB.
 		SystemCoreClockUpdate();
 		// Рассчитываем APB2 по таблице.
 		return SystemCoreClock>>APBPrescTable[(RCC->CFGR & RCC_CFGR_PPRE2) >> RCC_CFGR_PPRE2_Pos];
 	}
+#pragma clang diagnostic pop
 
 	/**
 	 * Рассчитывает требуемое значение RCC_CFGR_HPRE в зависимости от значения SYSCLK.

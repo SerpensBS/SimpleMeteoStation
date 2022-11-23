@@ -19,7 +19,7 @@ namespace Application
 		Application() = default;
 		~Application() = default;
 	 public:
-		void Run();
+		[[noreturn]]void Run();
 
 		static Middleware::ReturnCode CreateSingleInstance(Application*& out_application);
 

@@ -27,8 +27,8 @@ namespace STM32F103XB
 		static Middleware::ReturnCode CreateSingleInstance(uint32_t target_HCLK, RCCDriver*& out_rcc_driver);
 
 		Middleware::ReturnCode Init(uint32_t target_HCLK);
-		uint32_t GetAPB1Clock();
-		uint32_t GetAPB2Clock();
+		[[maybe_unused]] uint32_t GetAPB1Clock();
+		[[maybe_unused]] uint32_t GetAPB2Clock();
 
 		RCCDriver(const RCCDriver&) = delete;
 		RCCDriver(const RCCDriver&&) = delete;
