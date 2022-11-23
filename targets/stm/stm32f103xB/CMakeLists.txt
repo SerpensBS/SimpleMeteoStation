@@ -42,11 +42,13 @@ add_custom_command(
         TARGET ${PROJECT_NAME} POST_BUILD
         COMMAND ${CMAKE_OBJCOPY} ARGS -O ihex
         ${OUTPUT_DIRECTORY_PATH}/${PROJECT_NAME}.elf ${OUTPUT_DIRECTORY_PATH}/${PROJECT_NAME}.hex)
+
 # Превращаем .elf в .lst
 add_custom_command(
         TARGET ${PROJECT_NAME} POST_BUILD
         COMMAND ${CMAKE_OBJDUMP} ARGS --disassemble-all --headers --source -marm
         ${OUTPUT_DIRECTORY_PATH}/${PROJECT_NAME}.elf > ${OUTPUT_DIRECTORY_PATH}/${PROJECT_NAME}.lst)
+
 # Вывод в консоль данных о размере секций .bss, .data и т.д., а так же всего проекта.
 add_custom_command(
         TARGET ${PROJECT_NAME} POST_BUILD
