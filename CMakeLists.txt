@@ -23,6 +23,7 @@ if(PLATFORM_NAME)
     set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${OUTPUT_DIRECTORY_PATH}")
 
     # Общие библиотеки.
+    add_subdirectory(middleware)
     add_subdirectory(application)
 
     # Определяем конечную цель в зависимости от целевой платформы.
