@@ -24,12 +24,13 @@ if(PLATFORM_NAME)
 
     # Общие библиотеки.
     add_subdirectory(middleware)
-    add_subdirectory(application)
 
     # Определяем конечную цель в зависимости от целевой платформы.
     if(${PLATFORM_NAME} STREQUAL "Linux86")
+        add_subdirectory(application/tests)
     elseif (${PLATFORM_NAME} STREQUAL "STM32")
         add_subdirectory(libs/cmsis)
+        add_subdirectory(application)
         add_subdirectory(targets/stm/stm32f103xB)
     endif()
 endif()

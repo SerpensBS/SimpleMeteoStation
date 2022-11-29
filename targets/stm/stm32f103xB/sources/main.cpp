@@ -1,4 +1,4 @@
-#include "application/core/application.h"
+#include "application/core/core.h"
 #include "config/device-config.h"
 #include "core/rcc-driver.h"
 
@@ -13,24 +13,16 @@ int main()
 		return 1;
 	}
 
-	// Создаем экземпляр приложения.
-	Application::Application* application = nullptr;
-	status = Application::Application::CreateSingleInstance(application);
+	Application::Core::Run(nullptr, nullptr, nullptr, nullptr);
 
-	if (Middleware::ReturnCode::OK < status || !application)
-	{
-		return 1;
-	}
+	/**
+	 * Основная логика приложения не должна дать нам попасть сюда, поэтому, мы допускаем, что данный код никогда
+	 * не будет выполнен.
+	 */
+	#pragma clang diagnostic push
+	#pragma ide diagnostic ignored "UnreachableCode"
 
-	// Запускаем приложение.
-	application->Run();
-
-/**
- * Основная логика приложения не должна дать нам попасть сюда, поэтому, мы допускаем, что данный код никогда
- * не будет выполнен.
- */
-#pragma clang diagnostic push
-#pragma ide diagnostic ignored "UnreachableCode"
 	return 0;
-#pragma clang diagnostic pop
+	
+	#pragma clang diagnostic pop
 }
