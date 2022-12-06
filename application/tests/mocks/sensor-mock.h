@@ -1,8 +1,8 @@
 #ifndef SIMPLEMETEOSTATION_APPLICATION_TESTS_MOCKS_SENSOR_MOCK_H_
 #define SIMPLEMETEOSTATION_APPLICATION_TESTS_MOCKS_SENSOR_MOCK_H_
 
+#include "middleware/enums/return-codes.h"
 #include "middleware/interfaces/isensor.h"
-#include "middleware/data/return-code.h"
 
 namespace ApplicationTests
 {
@@ -18,6 +18,11 @@ namespace ApplicationTests
 		{
 		}
 
+		/**
+		 * Получить фейковые данные с сенсора
+		 * @param out_value Данные, которые вернет сенсор
+		 * @return Статус операции
+		 */
 		Middleware::ReturnCode GetData(double* out_value) override;
 	};
 }

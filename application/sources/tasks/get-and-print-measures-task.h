@@ -1,7 +1,7 @@
 #ifndef SIMPLEMETEOSTATION_APPLICATION_SOURCES_TASKS_GET_AND_PRINT_MEASURES_TASK_H_
 #define SIMPLEMETEOSTATION_APPLICATION_SOURCES_TASKS_GET_AND_PRINT_MEASURES_TASK_H_
 
-#include "middleware/data/return-code.h"
+#include "middleware/enums/return-codes.h"
 #include "middleware/interfaces/isensor.h"
 #include "sources/controllers/display-controller.h"
 
@@ -44,7 +44,7 @@ namespace Application
 
 			if (Middleware::ReturnCode::OK != status)
 			{
-				return Middleware::ReturnCode::ERROR;
+				return status;
 			}
 
 			param.display_controller.PrintTemperature(temp_data);
@@ -57,13 +57,13 @@ namespace Application
 
 			if (Middleware::ReturnCode::OK != status)
 			{
-				return Middleware::ReturnCode::ERROR;
+				return status;
 			}
 
 			param.display_controller.PrintPressure(press_data);
 		}
 
-		return Middleware::ReturnCode::OK;
+		return status;
 	}
 }
 

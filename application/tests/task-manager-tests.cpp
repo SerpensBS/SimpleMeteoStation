@@ -1,6 +1,6 @@
 #include <thread>
 #include "gtest/gtest.h"
-#include "middleware/data/return-code.h"
+#include "middleware/enums/return-codes.h"
 #include "mocks/clock-mock.h"
 #include "sources/core/tasks-manager.h"
 #include "sources/tasks/task.h"

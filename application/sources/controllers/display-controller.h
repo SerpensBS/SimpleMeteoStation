@@ -10,6 +10,8 @@ namespace Application
 	 */
 	class DisplayController
 	{
+	 private:
+		Middleware::IDisplay* display_driver = nullptr;
 	 public:
 		/**
 		 * Очистить дисплей.
@@ -37,8 +39,6 @@ namespace Application
 			: display_driver(&display_driver)
 		{
 		}
-	 private:
-		Middleware::IDisplay* display_driver = nullptr;
 	};
 }
 

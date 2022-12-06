@@ -2,7 +2,7 @@
 #define SIMPLEMETEOSTATION_APPLICATION_SOURCES_TASKS_TASK_H_
 
 #include <cstdint>
-#include "middleware/data/return-code.h"
+#include "middleware/enums/return-codes.h"
 #include "sources/interfaces/itask.h"
 
 namespace Application

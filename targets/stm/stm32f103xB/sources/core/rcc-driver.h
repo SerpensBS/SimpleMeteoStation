@@ -2,7 +2,7 @@
 #define SIMPLEMETEOSTATION_TARGETS_STM_STM32F103XB_SOURCES_CORE_RCC_DRIVER_H_
 
 #include "cmsis/stm/stm32f1xx.h"
-#include "middleware/data/return-code.h"
+#include "middleware/enums/return-codes.h"
 
 namespace STM32F103XB
 {

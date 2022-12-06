@@ -122,6 +122,4 @@ namespace Application
 	{
 		return tasks_queue[0].execute_task_time_s;
 	}
-
 }
-
