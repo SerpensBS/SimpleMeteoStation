@@ -1,16 +1,16 @@
 #include <algorithm>
 #include <cstdint>
-#include "tasks-manager.h"
 
 namespace Application
 {
-	Middleware::ReturnCode TasksManager::AddTask(
+	template<uint32_t max_tasks_in_queue_count>
+	Middleware::ReturnCode TasksManager<max_tasks_in_queue_count>::AddTask(
 		Application::ITask& added_task,
 		uint32_t execute_time_s,
 		int32_t repeat_task_time_s)
 	{
 		// Если нет нового места под подписку - выходим.
-		if (tasks_queue.size() > ApplicationConfiguration::TaskQueueMaxSize)
+		if (tasks_queue.size() > max_tasks_in_queue_count)
 		{
 			return Middleware::ReturnCode::ERROR;
 		}
@@ -43,7 +43,8 @@ namespace Application
 		return Middleware::ReturnCode::ERROR;
 	}
 
-	Middleware::ReturnCode TasksManager::RemoveTask(ITask& task_for_remove)
+	template<uint32_t max_tasks_in_queue_count>
+	Middleware::ReturnCode TasksManager<max_tasks_in_queue_count>::RemoveTask(ITask& task_for_remove)
 	{
 		for (uint32_t i = 0; i < tasks_queue.size(); ++i)
 		{
@@ -74,7 +75,8 @@ namespace Application
 		return Middleware::ReturnCode::ERROR;
 	}
 
-	Middleware::ReturnCode TasksManager::RunTasks()
+	template<uint32_t max_tasks_in_queue_count>
+	Middleware::ReturnCode TasksManager<max_tasks_in_queue_count>::RunTasks()
 	{
 		isRunning = true;
 		for (auto& planned_task : tasks_queue)
@@ -94,7 +96,6 @@ namespace Application
 				if (planned_task.repeat_task_time_s < 0)
 				{
 					RemoveTask(*planned_task.task);
-					--tasks_in_queue_count;
 				}
 				else
 				{
@@ -110,15 +111,17 @@ namespace Application
 		return Middleware::ReturnCode::OK;
 	}
 
-	uint32_t TasksManager::GetTasksQueueSize() const
+	template<uint32_t max_tasks_in_queue_count>
+	uint32_t TasksManager<max_tasks_in_queue_count>::GetTasksQueueSize() const
 	{
 		return tasks_in_queue_count;
 	}
 
-
-	uint32_t TasksManager::GetTimeToCallTheNearestTask()
+	template<uint32_t max_tasks_in_queue_count>
+	uint32_t TasksManager<max_tasks_in_queue_count>::GetTimeToCallTheNearestTask()
 	{
 		return tasks_queue[0].execute_task_time_s;
 	}
+
 }
 

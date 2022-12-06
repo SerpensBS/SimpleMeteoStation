@@ -2,7 +2,6 @@
 #define SIMPLEMETEOSTATION_APPLICATION_SOURCES_CORE_TASKS_MANAGER_H_
 
 #include <array>
-#include "configuration/app-config.h"
 #include "middleware/interfaces/iclock.h"
 #include "sources/data/planned-task.h"
 #include "sources/interfaces/itask.h"
@@ -12,13 +11,14 @@ namespace Application
 	/**
 	 * Менеджер по работе с задачами.
 	 */
+	template<uint32_t max_tasks_in_queue_count>
 	class TasksManager
 	{
 	 private:
 		/**
 		 * Очередь задач.
 		 */
-		std::array<PlannedTask, ApplicationConfiguration::TaskQueueMaxSize> tasks_queue = {};
+		std::array<PlannedTask, max_tasks_in_queue_count> tasks_queue = {};
 
 		/**
 		 * Количество задач в очереди задач.
@@ -73,5 +73,7 @@ namespace Application
 		uint32_t GetTimeToCallTheNearestTask();
 	};
 }
+
+#include "tasks-manager.inl"
 
 #endif //SIMPLEMETEOSTATION_APPLICATION_SOURCES_CORE_TASKS_MANAGER_H_

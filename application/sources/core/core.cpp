@@ -1,9 +1,10 @@
+#include "configuration/app-config.h"
 #include "core/core.h"
 #include "sources/controllers/display-controller.h"
 #include "sources/tasks/task.h"
-#include "tasks-manager.h"
 #include "sources/tasks/get-and-print-measures-task.h"
 #include "sources/tasks/init-screen-task.h"
+#include "tasks-manager.h"
 
 namespace Application
 {
@@ -22,7 +23,7 @@ namespace Application
 		DisplayController display_controller(*display);
 
 		// Инициализируем задачи.
-		TasksManager taskManager(*clock);
+		TasksManager<ApplicationConfiguration::TaskQueueMaxSize> taskManager(*clock);
 
 		DisplayInputParameter initScreenTaskParam = { display_controller };
 		Task<DisplayInputParameter&> initScreenTask(InitScreenTask, initScreenTaskParam);
