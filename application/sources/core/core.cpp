@@ -10,7 +10,8 @@ namespace Application
 	void Core::Run(Middleware::ISensor* temperature_sensor,
 		Middleware::ISensor* pressure_sensor,
 		Middleware::ISleep* sleep_manager,
-		Middleware::IDisplay* display)
+		Middleware::IDisplay* display,
+		Middleware::IClock* clock)
 	{
 		// Отказываемся работать без устройства вывода и драйвера управления сном.
 		if (!sleep_manager || !display)
@@ -21,7 +22,7 @@ namespace Application
 		DisplayController display_controller(*display);
 
 		// Инициализируем задачи.
-		TasksManager taskManager;
+		TasksManager taskManager(*clock);
 
 		DisplayInputParameter initScreenTaskParam = { display_controller };
 		Task<DisplayInputParameter&> initScreenTask(InitScreenTask, initScreenTaskParam);
@@ -31,18 +32,22 @@ namespace Application
 
 		// Стартовая инициализация дисплея.
 		taskManager.AddTask(initScreenTask);
-		taskManager.RunTasks();
-		taskManager.RemoveTask(initScreenTask);
-
 		// Добавляем задачу опроса сенсоров и вывода данных на дисплей.
-		taskManager.AddTask(getAndPrintMeasuresTask);
+		taskManager.AddTask(getAndPrintMeasuresTask, 0, 5);
 
 		// Запускаем основной цикл приложения.
 		auto status = Middleware::ReturnCode::OK;
-		while (Middleware::ReturnCode::OK == status)
+		while (taskManager.GetTasksQueueSize() > 0 && Middleware::ReturnCode::OK == status)
 		{
 			status = taskManager.RunTasks();
-			sleep_manager->Sleep(5);
+
+			if (taskManager.GetTasksQueueSize() > 0)
+			{
+				if (taskManager.GetTimeToCallTheNearestTask() > clock->GetCurrentTime())
+				{
+					sleep_manager->Sleep(taskManager.GetTimeToCallTheNearestTask() - clock->GetCurrentTime());
+				}
+			}
 		}
 	}
 }

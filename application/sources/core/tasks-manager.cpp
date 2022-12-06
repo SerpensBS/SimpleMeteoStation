@@ -1,27 +1,41 @@
+#include <algorithm>
 #include <cstdint>
 #include "tasks-manager.h"
 
 namespace Application
 {
-	Middleware::ReturnCode TasksManager::AddTask(Application::ITask& task)
+	Middleware::ReturnCode TasksManager::AddTask(
+		Application::ITask& added_task,
+		uint32_t execute_time_s,
+		int32_t repeat_task_time_s)
 	{
 		// Если нет нового места под подписку - выходим.
-		if (nullptr != tasks.back())
+		if (tasks_queue.size() > ApplicationConfiguration::TaskQueueMaxSize)
 		{
 			return Middleware::ReturnCode::ERROR;
 		}
 
 		// Не даем подписаться дважды - ищем дубли.
-		for (auto& i : tasks)
+		for (auto& planned_task : tasks_queue)
 		{
-			if (i == &task)
+			// Выходим с ошибкой, если дубль.
+			if (planned_task.task == &added_task)
 			{
 				return Middleware::ReturnCode::ERROR;
 			}
 
-			if (i == nullptr)
+			// Добавляем задачу в очередь, когда нашли свободное место.
+			if (planned_task.task == nullptr)
 			{
-				i = &task;
+				planned_task.task = &added_task;
+				planned_task.execute_task_time_s = execute_time_s > 0
+					? execute_time_s
+					: clock.GetCurrentTime();
+				planned_task.repeat_task_time_s = repeat_task_time_s;
+
+				++tasks_in_queue_count;
+
+				std::sort(tasks_queue.begin(), tasks_queue.end());
 				return Middleware::ReturnCode::OK;
 			}
 		}
@@ -29,19 +43,28 @@ namespace Application
 		return Middleware::ReturnCode::ERROR;
 	}
 
-	Middleware::ReturnCode TasksManager::RemoveTask(ITask& task)
+	Middleware::ReturnCode TasksManager::RemoveTask(ITask& task_for_remove)
 	{
-		for (uint32_t i = 0; i < tasks.size(); ++i)
+		for (uint32_t i = 0; i < tasks_queue.size(); ++i)
 		{
 			// Если нашли элемент, то удаляем его и сдвигаем все последующие оставшиеся элементы влево.
-			if (tasks[i] == &task)
+			if (tasks_queue[i].task == &task_for_remove)
 			{
-				tasks[i] = nullptr;
+				tasks_queue[i] = {};
 
-				for (uint32_t j = i + 1; j < tasks.size(); ++j, ++i)
+				for (uint32_t j = i + 1; j < tasks_queue.size(); ++j, ++i)
 				{
-					tasks[i] = tasks[j];
-					tasks[j] = nullptr;
+					tasks_queue[i] = tasks_queue[j];
+					tasks_queue[j] = {};
+				}
+
+				--tasks_in_queue_count;
+
+				// Если идет выполнение задач из очереди - не торопимся сортировать, т.к. это будет сделано в конце
+				// цикла поочередного выполнения всех запланированных к этому времени задач.
+				if (!isRunning)
+				{
+					std::sort(tasks_queue.begin(), tasks_queue.end());
 				}
 
 				return Middleware::ReturnCode::OK;
@@ -53,17 +76,49 @@ namespace Application
 
 	Middleware::ReturnCode TasksManager::RunTasks()
 	{
-		for (auto* task : tasks)
+		isRunning = true;
+		for (auto& planned_task : tasks_queue)
 		{
-			if (!task)
+			// Если больше задач не найдено - выходим.
+			if (!planned_task.task)
 			{
-				return Middleware::ReturnCode::OK;
+				break;
 			}
 
-			task->Execute();
+			// Если задача должна быть выполнена к этому моменту - выполняем.
+			if (planned_task.execute_task_time_s <= clock.GetCurrentTime())
+			{
+				planned_task.task->Execute();
+
+				// Если задача запланирована на повтор - задаем новое время, если нет - удаляем.
+				if (planned_task.repeat_task_time_s < 0)
+				{
+					RemoveTask(*planned_task.task);
+					--tasks_in_queue_count;
+				}
+				else
+				{
+					planned_task.execute_task_time_s += static_cast<uint32_t>(planned_task.repeat_task_time_s);
+				}
+			}
 		}
 
+		isRunning = false;
+
+		// Сортируем оставшиеся задачи и выходим.
+		std::sort(tasks_queue.begin(), tasks_queue.end());
 		return Middleware::ReturnCode::OK;
+	}
+
+	uint32_t TasksManager::GetTasksQueueSize() const
+	{
+		return tasks_in_queue_count;
+	}
+
+
+	uint32_t TasksManager::GetTimeToCallTheNearestTask()
+	{
+		return tasks_queue[0].execute_task_time_s;
 	}
 }
 
