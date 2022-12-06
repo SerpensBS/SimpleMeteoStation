@@ -22,9 +22,9 @@ namespace Application
 		 * @param sleep_manager Драйвер управления сном
 		 * @param display Драйвер дисплея
 		 * @param clock Драйвер часов реального времени
-		 * @return Функция должна выполняться бесконечно, и любой выход из нее является ошибкой.
+		 * @return Статус операции
 		 */
-		static void Run(
+		static Middleware::ReturnCode Run(
 			Middleware::ISensor* temperature_sensor,
 			Middleware::ISensor* pressure_sensor,
 			Middleware::ISleep* sleep_manager,
