@@ -17,7 +17,6 @@ endif()
 
 # Настройки компиляции.
 set(TARGET_COMPILE_OPTIONS
-
         ${COMPILER_OPTIMIZATION}    # Уровень оптимизации.
         -Wall                       # Показывать все предупреждения.
         -Wextra
@@ -32,16 +31,16 @@ set(TARGET_COMPILE_OPTIONS
         -fdata-sections             # Помещает каждую глобальную и статическую переменную в собственный раздел.
         -fno-exceptions             # Отключаем исключения для экономии ROM и ускорения работы.
         -Wno-unknown-pragmas        # Подавляем ошибку о неизвестных pragma'х.
-        $<$<COMPILE_LANGUAGE:ASM>:
+    $<$<COMPILE_LANGUAGE:ASM>:
         -c                          # Останавливает на стадии ассемблирования, но пропускает компоновку.
         -x assembler-with-cpp>      # Явно указывает язык. Позволяет работать с файлами .s вместо .S
-        $<$<COMPILE_LANGUAGE:C>:
+    $<$<COMPILE_LANGUAGE:C>:
         ${CMAKE_C_FLAGS}
         -std=gnu11>                 # Версия C.
-        $<$<COMPILE_LANGUAGE:CXX>:
+    $<$<COMPILE_LANGUAGE:CXX>:
         ${CMAKE_CXX_FLAGS}
         -std=gnu++17                # Версия C++.
         -fuse-cxa-atexit            # Поддержка __cxa_atexit для статических деструкторов.
         -Woverloaded-virtual        # Предупреждает о попытке дочернего класса перегрузить виртуальную функцию родителя.
         -fno-rtti                   # Отключает поддержку исключений и динамическую идентификацию типов данных.
-        >)
+    >)
