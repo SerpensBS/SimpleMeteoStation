@@ -11,6 +11,8 @@ namespace Application
 	class ITask
 	{
 	 public:
+		virtual ~ITask() = default;
+
 		/**
 		 * Выполнить задачу.
 		 * @return

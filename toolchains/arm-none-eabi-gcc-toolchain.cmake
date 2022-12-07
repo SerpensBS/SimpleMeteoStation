@@ -17,42 +17,31 @@ set(CPU_PARAMETERS
         -mfloat-abi=soft    # Использовать программные инструкции при работе с плавающей точкой.
         )
 
-# Уровень оптимизации компилятора.
+
 if(${CMAKE_BUILD_TYPE} MATCHES "Debug")
-    set(COMPILER_OPTIMIZATION -Og)
+    set(BUILD_TYPE_FLAGS
+            -O0                     # Уровень оптимизации компилятора.
+
+            -g                      # Добавить отладочную информацию.
+                                    # Следующие две опции помогают убирать неиспользуемый код если включен
+                                    # параметр --gc-sections в линкере.
+            )
 else()
-    set(COMPILER_OPTIMIZATION -O2)
+    set(BUILD_TYPE_FLAGS
+            -O2                     # Уровень оптимизации компилятора.
+            -Werror                 # Все warning'и становятся error'ами.
+            )
 endif()
+
+# Подключаем общие флаги.
+include(${CMAKE_SOURCE_DIR}/toolchains/gcc-toolchains-general-flags.cmake)
 
 # Настройки компиляции.
 set(TARGET_COMPILE_OPTIONS
+        ${GENERAL_GCC_COMPILE_FLAGS}
         ${CPU_PARAMETERS}
-        ${COMPILER_OPTIMIZATION}# Уровень оптимизации.
-        -Wall                   # Показывать все предупреждения.
-        -fstack-usage           # Cгенерировать файл, в котором указан максимальный объем используемого стека
-                                # для каждой функции.
-        -g                      # Добавить отладочную информацию.
-                                # Следующие две опции помогают убирать неиспользуемый код если включен
-                                # параметр --gc-sections в линкере.
-        -ffunction-sections     # Помещает каждую функцию (включая статические) в собственный раздел text.func_name.
-        -fdata-sections         # Помещает каждую глобальную и статическую переменную в собственный раздел.
-        -fno-exceptions         # Отключаем исключения для экономии ROM и ускорения работы.
-        -Wno-unknown-pragmas    # Подавляем ошибку о неизвестных pragma'х.
-
-        $<$<COMPILE_LANGUAGE:ASM>:
-        -c                      # Останавливает на стадии ассемблирования, но пропускает компоновку.
-        -x assembler-with-cpp>  # Явно указывает язык. Позволяет работать с файлами .s вместо .S
-
-        $<$<COMPILE_LANGUAGE:C>:
-        ${CMAKE_C_FLAGS}
-        -std=gnu11>             # Версия C.
-
-        $<$<COMPILE_LANGUAGE:CXX>:
-        ${CMAKE_CXX_FLAGS}
-        -std=gnu++17            # Версия C++.
-        -fuse-cxa-atexit        # Поддержка __cxa_atexit для статических деструкторов.
-        -Woverloaded-virtual    # Предупреждает о попытке дочернего класса перегрузить виртуальную функцию родителя.
-        >)
+        ${BUILD_TYPE_FLAGS}
+        )
 
 # Настройки линковки.
 set(TARGET_LINKER_OPTIONS
