@@ -2,26 +2,26 @@
 
 namespace STM32F103XB
 {
-	RCCDriver* RCCDriver::instance_ = nullptr;
+	RCCDriver* RCCDriver::instance = nullptr;
 
 	Middleware::ReturnCode RCCDriver::CreateSingleInstance(uint32_t target_HCLK, RCCDriver*& out_rcc_driver)
 	{
 		// Контролируем уникальность экземпляра драйвера RCC.
-		if (nullptr == instance_)
+		if (nullptr == instance)
 		{
 			static RCCDriver static_rcc_driver;
-			*&instance_ = &static_rcc_driver;
+			*&instance = &static_rcc_driver;
 
-			auto status = instance_->Init(target_HCLK);
+			auto status = instance->Init(target_HCLK);
 
 			if (Middleware::ReturnCode::OK == status)
 			{
-				out_rcc_driver = instance_;
+				out_rcc_driver = instance;
 				return Middleware::ReturnCode::OK;
 			}
 
-			delete instance_;
-			instance_ = nullptr;
+			delete instance;
+			instance = nullptr;
 		}
 
 		return Middleware::ReturnCode::ERROR;
@@ -45,12 +45,12 @@ namespace STM32F103XB
 		return Middleware::ReturnCode::OK;
 	}
 
-/**
- * Я бы не хотел, чтобы этот метод можно было вызвать статически, но он должен быть доступен коду, владеющему
- * экземпляром класса.
- */
-#pragma clang diagnostic push
-#pragma ide diagnostic ignored "readability-convert-member-functions-to-static"
+	/**
+	 * Я бы не хотел, чтобы этот метод можно было вызвать статически, но он должен быть доступен коду, владеющему
+	 * экземпляром класса.
+	 */
+	#pragma clang diagnostic push
+	#pragma ide diagnostic ignored "readability-convert-member-functions-to-static"
 	Middleware::ReturnCode RCCDriver::SetABHPrescaler(uint32_t target_HCLK)
 	{
 		uint32_t HPRE_value = GetAHBPrescalerValue(target_HCLK);
@@ -65,7 +65,7 @@ namespace STM32F103XB
 
 		return Middleware::ReturnCode::OK;
 	}
-#pragma clang diagnostic pop
+	#pragma clang diagnostic pop
 
 /**
  * Я бы не хотел, чтобы этот метод можно было вызвать статически, но он должен быть доступен коду, владеющему

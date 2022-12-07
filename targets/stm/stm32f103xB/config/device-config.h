@@ -14,6 +14,11 @@ namespace STM32F103XB
 		 * Тактовая частота, на которую будет настроена AHB.
 		 */
 		static constexpr uint32_t TargetHCLK = 125000UL;
+
+		/**
+		 * BaudRate, на который будет настроен UART3.
+		 */
+		static constexpr uint32_t UART3_BaudRate = 2400;
 	};
 }
 

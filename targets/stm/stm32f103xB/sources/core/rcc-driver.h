@@ -15,7 +15,7 @@ namespace STM32F103XB
 		/**
 		 * Singleton экземпляр RCC драйвера.
 		 */
-		static RCCDriver* instance_;
+		static RCCDriver* instance;
 
 		/**
 	 	 * Рассчитывает требуемое значение RCC_CFGR_HPRE в зависимости от значения SYSCLK.
@@ -37,7 +37,8 @@ namespace STM32F103XB
 		/**
 		 * Создает и инициализирует единственный экземпляр драйвера RCC, если он не был создан ранее.
 		 * @param target_HCLK Целевая частота AHB
-		 * @param out_rcc_driver Инициализированный экземпляр драйвера RCC. Если драйвер уже был проинициализирован ранее - вернет nullptr.
+		 * @param out_rcc_driver Инициализированный экземпляр драйвера RCC.
+		 * 						 Если драйвер уже был проинициализирован ранее - вернет nullptr.
 		 * @return Статус операции
 		 */
 		static Middleware::ReturnCode CreateSingleInstance(uint32_t target_HCLK, RCCDriver*& out_rcc_driver);
