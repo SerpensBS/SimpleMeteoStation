@@ -14,12 +14,6 @@ namespace ApplicationTests
 	 */
 	class CoreTests : public ::testing::Test
 	{
-	 public:
-		static SensorMock* temperature_sensor;
-		static SensorMock* pressure_sensor;
-		static SleepMock* sleep_manager;
-		static DisplayMock<12, 4>* display;
-		static ClockMock* clock;
 	 protected:
 		void SetUp() override
 		{
@@ -44,6 +38,12 @@ namespace ApplicationTests
 			delete display;
 			display = nullptr;
 		}
+	 public:
+		static SensorMock* temperature_sensor;
+		static SensorMock* pressure_sensor;
+		static SleepMock* sleep_manager;
+		static DisplayMock<12, 4>* display;
+		static ClockMock* clock;
 	};
 
 	SensorMock* CoreTests::temperature_sensor = nullptr;

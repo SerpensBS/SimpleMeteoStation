@@ -2,7 +2,7 @@
 #define SIMPLEMETEOSTATION_APPLICATION_SOURCES_TASKS_TASK_H_
 
 #include <cstdint>
-#include "middleware/data/return-code.h"
+#include "middleware/enums/return-codes.h"
 #include "sources/interfaces/itask.h"
 
 namespace Application
@@ -19,22 +19,22 @@ namespace Application
 		 * Основная функция, которая будет вызвана при выполнении Execute().
 		 * @return Статус операции
 		 */
-		Middleware::ReturnCode (*run_function)(PT) = nullptr;
+		Middleware::ReturnCode (*run_function_)(PT) = nullptr;
 
 		/**
 		 * Входящий параметр во всех функциях.
 		 */
-		PT function_input_parameter;
+		PT function_input_parameter_;
 
 		/**
 		 * Функция, которая будет вызвана, если RunFunction вернет ERROR.
 		 */
-		void (*error_callback_func)(PT) = nullptr;
+		void (*error_callback_func_)(PT) = nullptr;
 
 		/**
 		 * Функция, которая будет вызвана, если RunFunction вернет OK.
 		 */
-		void (*success_callback_func)(PT) = nullptr;
+		void (*success_callback_func_)(PT) = nullptr;
 	 public:
 		explicit Task(
 			Middleware::ReturnCode (*run_function)(PT),
@@ -43,10 +43,10 @@ namespace Application
 			void success_callback_func(PT) = nullptr
 			)
 			:
-			run_function(run_function),
-			function_input_parameter(function_input_parameter),
-			error_callback_func(error_callback_func),
-			success_callback_func(success_callback_func)
+			run_function_(run_function),
+			function_input_parameter_(function_input_parameter),
+			error_callback_func_(error_callback_func),
+			success_callback_func_(success_callback_func)
 		{
 		}
 
@@ -55,6 +55,7 @@ namespace Application
 		 * @return
 		 */
 		Middleware::ReturnCode Execute() override;
+
 
 	};
 }

@@ -10,6 +10,11 @@ namespace Application
 	 */
 	class DisplayController
 	{
+	 private:
+		/**
+		 * Экземпляр драйвера.
+		 */
+		Middleware::IDisplay* display_driver_ = nullptr;
 	 public:
 		/**
 		 * Очистить дисплей.
@@ -34,11 +39,9 @@ namespace Application
 		void PrintPressure(double pressure_value_in_mmHg);
 
 		explicit DisplayController(Middleware::IDisplay& display_driver)
-			: display_driver(&display_driver)
+			: display_driver_(&display_driver)
 		{
 		}
-	 private:
-		Middleware::IDisplay* display_driver = nullptr;
 	};
 }
 

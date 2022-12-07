@@ -2,7 +2,7 @@
 #define SIMPLEMETEOSTATION_MIDDLEWARE_INCLUDES_MIDDLEWARE_INTERFACES_IDISPLAY_H_
 
 #include <cstdint>
-#include "middleware/data/return-code.h"
+#include "middleware/enums/return-codes.h"
 
 namespace Middleware
 {

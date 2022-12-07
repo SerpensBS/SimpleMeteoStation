@@ -8,7 +8,7 @@
 
 namespace Application
 {
-	void Core::Run(Middleware::ISensor* temperature_sensor,
+	Middleware::ReturnCode Core::Run(Middleware::ISensor* temperature_sensor,
 		Middleware::ISensor* pressure_sensor,
 		Middleware::ISleep* sleep_manager,
 		Middleware::IDisplay* display,
@@ -17,7 +17,7 @@ namespace Application
 		// Отказываемся работать без устройства вывода и драйвера управления сном.
 		if (!sleep_manager || !display)
 		{
-			return;
+			return Middleware::ReturnCode::ERROR;
 		}
 
 		DisplayController display_controller(*display);
@@ -37,18 +37,30 @@ namespace Application
 		taskManager.AddTask(getAndPrintMeasuresTask, 0, 5);
 
 		// Запускаем основной цикл приложения.
-		auto status = Middleware::ReturnCode::OK;
-		while (taskManager.GetTasksQueueSize() > 0 && Middleware::ReturnCode::OK == status)
+		while (true)
 		{
-			status = taskManager.RunTasks();
+			// Запускаем процесс выполнения задач.
+			auto status = taskManager.RunTasks();
 
-			if (taskManager.GetTasksQueueSize() > 0)
+			// Если последний запуск был с ошибкой - выходим с ошибкой.
+			if (Middleware::ReturnCode::OK != status)
 			{
-				if (taskManager.GetTimeToCallTheNearestTask() > clock->GetCurrentTime())
-				{
-					sleep_manager->Sleep(taskManager.GetTimeToCallTheNearestTask() - clock->GetCurrentTime());
-				}
+				return status;
+			}
+
+			// Если в пуле больше нет задач - выходим.
+			if (0 == taskManager.GetTasksQueueSize())
+			{
+				break;
+			}
+
+			// Если следующая задача не стоит на запуск вот прям сейчас - спим до момента ее запланированного запуска.
+			if (taskManager.GetTimeToCallTheNearestTask() > clock->GetCurrentTime())
+			{
+				sleep_manager->Sleep(taskManager.GetTimeToCallTheNearestTask() - clock->GetCurrentTime());
 			}
 		}
+
+		return Middleware::ReturnCode::OK;
 	}
 }

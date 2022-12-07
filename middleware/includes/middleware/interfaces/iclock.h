@@ -16,6 +16,8 @@ namespace Middleware
 		 * @return Количество секунд, прошедших с 00:00 текущего дня
 		 */
 		virtual uint32_t GetCurrentTime() = 0;
+
+		virtual ~IClock() = default;
 	};
 }
 

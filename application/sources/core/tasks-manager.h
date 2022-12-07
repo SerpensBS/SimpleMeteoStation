@@ -18,25 +18,25 @@ namespace Application
 		/**
 		 * Очередь задач.
 		 */
-		std::array<PlannedTask, max_tasks_in_queue_count> tasks_queue = {};
+		std::array<PlannedTask, max_tasks_in_queue_count> tasks_queue_ = {};
 
 		/**
 		 * Количество задач в очереди задач.
 		 */
-		uint32_t tasks_in_queue_count = 0;
+		uint32_t tasks_in_queue_count_ = 0;
 
 		/**
 		 * Часы реального времени.
 		 */
-		Middleware::IClock& clock;
+		Middleware::IClock& clock_;
 
 		/**
 		 * Запущен ли в данный момент процесс выполнения задач из очереди планировщика.
 		 */
-		bool isRunning = false;
+		bool isRunning_ = false;
 	 public:
 		explicit TasksManager(Middleware::IClock& clock)
-		: clock(clock)
+		: clock_(clock)
 		{
 		};
 

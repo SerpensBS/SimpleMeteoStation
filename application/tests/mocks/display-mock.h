@@ -5,11 +5,23 @@
 
 namespace ApplicationTests
 {
+	/**
+	 * Mock для дисплея.
+	 * @tparam width_display Ширина дисплея
+	 * @tparam height_display Высота дисплея
+	 */
 	template<uint32_t width_display, uint32_t height_display>
 	class DisplayMock : public Middleware::IDisplay
 	{
 	 private:
-		char display_screen[height_display][width_display] = {};
+		/**
+		 * Эмулирует матрицу дисплея.
+		 */
+		char display_screen_[height_display][width_display] = {};
+
+		/**
+		 * Вывести в терминал содержимое дисплея.
+		 */
 		void PrintScreen();
 	 public:
 		DisplayMock() = default;

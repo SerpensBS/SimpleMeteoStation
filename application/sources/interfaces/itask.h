@@ -1,7 +1,7 @@
 #ifndef SIMPLEMETEOSTATION_APPLICATION_SOURCES_INTERFACES_ITASK_H_
 #define SIMPLEMETEOSTATION_APPLICATION_SOURCES_INTERFACES_ITASK_H_
 
-#include "middleware/data/return-code.h"
+#include "middleware/enums/return-codes.h"
 
 namespace Application
 {
@@ -11,6 +11,8 @@ namespace Application
 	class ITask
 	{
 	 public:
+		virtual ~ITask() = default;
+
 		/**
 		 * Выполнить задачу.
 		 * @return
