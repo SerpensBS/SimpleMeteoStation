@@ -4,12 +4,6 @@ namespace STM32F103XB
 {
 	RCCDriver* RCCDriver::instance_ = nullptr;
 
-	/**
-	 * Создает и инициализирует единственный экземпляр драйвера RCC, если он не был создан ранее.
-	 * @param target_HCLK Целевая частота AHB
-	 * @param out_rcc_driver Инициализированный экземпляр драйвера RCC. Если драйвер уже был проинициализирован ранее - вернет nullptr.
-	 * @return Статус операции
-	 */
 	Middleware::ReturnCode RCCDriver::CreateSingleInstance(uint32_t target_HCLK, RCCDriver*& out_rcc_driver)
 	{
 		// Контролируем уникальность экземпляра драйвера RCC.
@@ -33,11 +27,6 @@ namespace STM32F103XB
 		return Middleware::ReturnCode::ERROR;
 	}
 
-	/**
-	 * Инициализация RCC.
-	 * @param target_HCLK Целевая частота AHB.
-	 * @return Статус операции
-	 */
 	Middleware::ReturnCode RCCDriver::Init(uint32_t target_HCLK)
 	{
 		// Если по каким-то причинам HSI отключен, значит, что-то совсем пошло не так - выходим с ошибкой.
@@ -62,11 +51,6 @@ namespace STM32F103XB
  */
 #pragma clang diagnostic push
 #pragma ide diagnostic ignored "readability-convert-member-functions-to-static"
-	/**
-	 * Устанавливает пред-делитель AHB.
-	 * @param target_HCLK Целевая частота AHB
-	 * @return Статус операции
-	 */
 	Middleware::ReturnCode RCCDriver::SetABHPrescaler(uint32_t target_HCLK)
 	{
 		uint32_t HPRE_value = GetAHBPrescalerValue(target_HCLK);
@@ -89,10 +73,6 @@ namespace STM32F103XB
  */
 #pragma clang diagnostic push
 #pragma ide diagnostic ignored "readability-convert-member-functions-to-static"
-	/**
-	 * Возвращает частоту APB1 (PCLK1).
-	 * @return PCLK1
-	 */
 	[[maybe_unused]] uint32_t RCCDriver::GetAPB1Clock()
 	{
 		// Получаем частоту AHB.
@@ -108,10 +88,6 @@ namespace STM32F103XB
  */
 #pragma clang diagnostic push
 #pragma ide diagnostic ignored "readability-convert-member-functions-to-static"
-	/**
-	 * Возвращает частоту APB2 (PCLK2).
-	 * @return PCLK2
-	 */
 	[[maybe_unused]] uint32_t RCCDriver::GetAPB2Clock()
 	{
 		// Получаем частоту AHB.
@@ -121,11 +97,6 @@ namespace STM32F103XB
 	}
 #pragma clang diagnostic pop
 
-	/**
-	 * Рассчитывает требуемое значение RCC_CFGR_HPRE в зависимости от значения SYSCLK.
-	 * @param tgt_sysclk Целевая частота AHB.
-	 * @return
-	 */
 	uint32_t RCCDriver::GetAHBPrescalerValue(uint32_t tgt_sysclk)
 	{
 		SystemCoreClockUpdate();
