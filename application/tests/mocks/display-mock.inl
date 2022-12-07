@@ -12,7 +12,7 @@ namespace ApplicationTests
 	{
 		for (uint32_t i = 0; i < message_length; ++i)
 		{
-			display_screen[row][column + i] = message[i];
+			display_screen_[row][column + i] = message[i];
 		}
 
 		PrintScreen();
@@ -27,7 +27,7 @@ namespace ApplicationTests
 		{
 			for (uint32_t column_position = 0; column_position < width_display; ++column_position)
 			{
-				display_screen[row_position][column_position] = ' ';
+				display_screen_[row_position][column_position] = ' ';
 			}
 		}
 
@@ -48,7 +48,7 @@ namespace ApplicationTests
 		{
 			for (uint32_t column_position = 0; column_position < width_strings_count; ++column_position)
 			{
-				std::cout << display_screen[row_position][column_position];
+				std::cout << display_screen_[row_position][column_position];
 			}
 
 			std::cout << std::endl;

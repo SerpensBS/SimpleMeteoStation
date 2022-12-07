@@ -2,7 +2,7 @@
 
 namespace STM32F103XB
 {
-	RCCDriver* RCCDriver::instance = nullptr;
+	RCCDriver* RCCDriver::instance_ = nullptr;
 
 	/**
 	 * Создает и инициализирует единственный экземпляр драйвера RCC, если он не был создан ранее.
@@ -13,21 +13,21 @@ namespace STM32F103XB
 	Middleware::ReturnCode RCCDriver::CreateSingleInstance(uint32_t target_HCLK, RCCDriver*& out_rcc_driver)
 	{
 		// Контролируем уникальность экземпляра драйвера RCC.
-		if (nullptr == instance)
+		if (nullptr == instance_)
 		{
 			static RCCDriver static_rcc_driver;
-			*&instance = &static_rcc_driver;
+			*&instance_ = &static_rcc_driver;
 
-			auto status = instance->Init(target_HCLK);
+			auto status = instance_->Init(target_HCLK);
 
 			if (Middleware::ReturnCode::OK == status)
 			{
-				out_rcc_driver = instance;
+				out_rcc_driver = instance_;
 				return Middleware::ReturnCode::OK;
 			}
 
-			delete instance;
-			instance = nullptr;
+			delete instance_;
+			instance_ = nullptr;
 		}
 
 		return Middleware::ReturnCode::ERROR;

@@ -17,7 +17,7 @@ namespace ApplicationTests
 		/**
 		 * Эмулирует матрицу дисплея.
 		 */
-		char display_screen[height_display][width_display] = {};
+		char display_screen_[height_display][width_display] = {};
 
 		/**
 		 * Вывести в терминал содержимое дисплея.

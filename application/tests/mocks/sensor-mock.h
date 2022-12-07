@@ -11,10 +11,14 @@ namespace ApplicationTests
 	 */
 	class SensorMock : public Middleware::ISensor
 	{
-		double measured_value;
+	 private:
+		/**
+		 * Значение, которое будет возвращаться как результат измерения.
+		 */
+		double measured_value_;
 	 public:
 		explicit SensorMock(double measured_value)
-		: Middleware::ISensor(), measured_value(measured_value)
+		: Middleware::ISensor(), measured_value_(measured_value)
 		{
 		}
 

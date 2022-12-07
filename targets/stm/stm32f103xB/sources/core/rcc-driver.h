@@ -15,7 +15,7 @@ namespace STM32F103XB
 		/**
 		 * Singleton экземпляр RCC драйвера.
 		 */
-		static RCCDriver* instance;
+		static RCCDriver* instance_;
 
 		static uint32_t GetAHBPrescalerValue(uint32_t tgt_sysclk);
 
