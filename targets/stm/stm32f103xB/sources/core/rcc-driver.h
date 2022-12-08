@@ -15,7 +15,12 @@ namespace STM32F103XB
 		/**
 		 * Singleton экземпляр RCC драйвера.
 		 */
-		static RCCDriver* instance;
+		static RCCDriver instance;
+
+		/**
+		 * Флаг, предотвращающий повторную инициализацию RCC.
+		 */
+		bool isInitialized = false;
 
 		/**
 	 	 * Рассчитывает требуемое значение RCC_CFGR_HPRE в зависимости от значения SYSCLK.

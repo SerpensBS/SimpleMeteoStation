@@ -2,29 +2,25 @@
 
 namespace STM32F103XB
 {
-	RCCDriver* RCCDriver::instance = nullptr;
+	RCCDriver RCCDriver::instance;
 
 	Middleware::ReturnCode RCCDriver::CreateSingleInstance(uint32_t target_HCLK, RCCDriver*& out_rcc_driver)
 	{
 		// Контролируем уникальность экземпляра драйвера RCC.
-		if (nullptr == instance)
+		if (!instance.isInitialized)
 		{
-			static RCCDriver static_rcc_driver;
-			*&instance = &static_rcc_driver;
-
-			auto status = instance->Init(target_HCLK);
-
-			if (Middleware::ReturnCode::OK == status)
-			{
-				out_rcc_driver = instance;
-				return Middleware::ReturnCode::OK;
-			}
-
-			delete instance;
-			instance = nullptr;
+			return Middleware::ReturnCode::ERROR;
 		}
 
-		return Middleware::ReturnCode::ERROR;
+		auto status = instance.Init(target_HCLK);
+
+		if (Middleware::ReturnCode::OK != status)
+		{
+			return status;
+		}
+
+		out_rcc_driver = &instance;
+		return Middleware::ReturnCode::OK;
 	}
 
 	Middleware::ReturnCode RCCDriver::Init(uint32_t target_HCLK)
@@ -41,6 +37,9 @@ namespace STM32F103XB
 		{
 			return status;
 		}
+
+		// Включаем прерывания.
+		__enable_irq();
 
 		return Middleware::ReturnCode::OK;
 	}

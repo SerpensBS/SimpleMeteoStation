@@ -18,7 +18,22 @@ namespace STM32F103XB
 		/**
 		 * BaudRate, на который будет настроен UART3.
 		 */
-		static constexpr uint32_t UART3_BaudRate = 2400;
+		static constexpr uint32_t UART3BaudRate = 2400;
+
+		/**
+		 * Размер буфера UART3.
+		 */
+		static constexpr uint32_t UART3BufferSize = 64;
+
+		/**
+		 * Размер буфера отправки каналов DMA.
+		 */
+		static constexpr uint32_t DMAChannelsTransactionBufferSize = 64;
+
+		/**
+		 * Приоритет прерываний DMA1->Channel2. Обрабатывает отправку в UART.
+		 */
+		static constexpr uint32_t DMAChannel2InterruptPriority = 0;
 	};
 }
 

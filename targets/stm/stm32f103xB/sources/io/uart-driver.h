@@ -3,25 +3,14 @@
 
 #include "cmsis/stm/stm32f1xx.h"
 #include "core/rcc-driver.h"
+#include "config/device-config.h"
+#include "gpio-driver.h"
+#include "middleware/collections/circuit-buffer.h"
+#include "memory/dma-driver.h"
 #include "middleware/enums/return-codes.h"
 
 namespace STM32F103XB
 {
-	/**
-	 * Данные о адресах регистра GPIO, с помощью которых конфигурируется USART.
-	 */
-	struct GPIOAddressesUSART
-	{
-		volatile uint32_t& gpio_port_register;
-		uint32_t tx_cnf_msk;
-		int32_t tx_cnf_pos;
-		uint32_t tx_mode_msk;
-		int32_t tx_mode_pos;
-		uint32_t rx_cnf_msk;
-		int32_t rx_cnf_pos;
-		uint32_t rx_mode_msk;
-	};
-
 	/**
 	 * Драйвер UART.
 	 */
@@ -31,23 +20,43 @@ namespace STM32F103XB
 		/**
 		 * Экземпляр драйвера UART3.
 		 */
-		static UARTDriver* uart3;
+		static UARTDriver uart3;
+
+		/**
+		 * Регистр USART.
+		 */
+		USART_TypeDef& usart_register_;
+
+		/**
+		 * Драйвер канала DMA.
+		 */
+		DMADriver* dma_channel_driver_ = nullptr;
+
+		/**
+		 * Буфер передачи данных.
+		 */
+		Middleware::CircuitBuffer<DeviceConfig::UART3BufferSize> transmission_buffer_ = {};
+
+		/**
+		 * Флаг, предотвращающий повторную инициализацию UART.
+		 */
+		bool isInitialized = false;
 
 		/**
 		 * Инициализация драйвера UART.
 		 * @param bus_speed Скорость шины APB, от которой тактируется UART
 		 * @param baud_rate UART BaudRate
-		 * @param gpio_addresses Адреса регистра GPIO, с помощью которых конфигурируется USART
-		 * @param usart_register Адрес регистра USART
 		 */
-		void Init(
-			uint32_t bus_speed,
-			uint32_t baud_rate,
-			GPIOAddressesUSART& gpio_addresses,
-			USART_TypeDef& usart_register);
+		Middleware::ReturnCode Init(uint32_t bus_speed, uint32_t baud_rate);
+
+		explicit UARTDriver(USART_TypeDef& usart_register)
+		: usart_register_(usart_register)
+		{
+		}
 	 public:
 		/**
 		 * Создает и инициализирует единственный экземпляр драйвера UART, если он не был создан ранее.
+		 * @param gpio_driver Драйвер GPIO
 		 * @param bus_speed Скорость шины APB, от которой тактируется UART
 		 * @param baud_rate UART BaudRate
 		 * @param usart_type Адрес регистра USART, который будем настраивать
@@ -55,10 +64,25 @@ namespace STM32F103XB
 		 * @return Статус операции
 		 */
 		static Middleware::ReturnCode CreateSingleInstance(
+			USART_TypeDef& usart_type,
+			GPIODriver& gpio_driver,
+			DMADriver& dma_driver,
 			uint32_t bus_speed,
 			uint32_t baud_rate,
-			USART_TypeDef& usart_type,
 			UARTDriver*& out_uart_driver);
+
+		/**
+		 * Обработать событие DMA Transaction Complete.
+		 * @param dma_channel
+		 */
+		static void DMATransactionCompleteEventHandler(const DMADriver& dma_channel);
+
+		/**
+		 * Отправить сообщение по UART.
+		 * @param message_text Текст сообщения. Если не оканчивается нуль-терминатором, нужно указать длину сообщения
+		 * @param length Длина сообщения
+		 */
+		void SendMessage(const char message_text[], uint32_t length = 0);
 	};
 }
 
