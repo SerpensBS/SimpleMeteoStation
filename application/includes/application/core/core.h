@@ -1,7 +1,7 @@
 #ifndef SIMPLEMETEOSTATION_APPLICATION_INCLUDES_APPLICATION_CORE_CORE_H_
 #define SIMPLEMETEOSTATION_APPLICATION_INCLUDES_APPLICATION_CORE_CORE_H_
 
-#include "middleware/enums/return-codes.h"
+#include "middleware/data/enums/return-codes.h"
 #include "middleware/interfaces/iclock.h"
 #include "middleware/interfaces/isensor.h"
 #include "middleware/interfaces/isleep.h"

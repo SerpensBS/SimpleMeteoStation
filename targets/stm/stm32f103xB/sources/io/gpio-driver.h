@@ -4,7 +4,7 @@
 #include "cmsis/stm/stm32f1xx.h"
 #include "data/constants/gpio_constants.h"
 #include "data/gpio-configuration.h"
-#include "middleware/enums/return-codes.h"
+#include "middleware/data/enums/return-codes.h"
 
 namespace STM32F103XB
 {

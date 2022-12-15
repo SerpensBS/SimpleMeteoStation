@@ -6,8 +6,7 @@
 #include "config/device-config.h"
 #include "gpio-driver.h"
 #include "middleware/collections/circuit-buffer.h"
-#include "memory/dma-driver.h"
-#include "middleware/enums/return-codes.h"
+#include "middleware/data/enums/return-codes.h"
 
 namespace STM32F103XB
 {
@@ -59,7 +58,6 @@ namespace STM32F103XB
 		 * @param gpio_driver Драйвер GPIO
 		 * @param bus_speed Скорость шины APB, от которой тактируется UART
 		 * @param baud_rate UART BaudRate
-		 * @param usart_type Адрес регистра USART, который будем настраивать
 		 * @param out_uart_driver Драйвер UART
 		 * @return Статус операции
 		 */
@@ -70,7 +68,6 @@ namespace STM32F103XB
 			uint32_t bus_speed,
 			uint32_t baud_rate,
 			UARTDriver*& out_uart_driver);
-
 		/**
 		 * Обработать событие DMA Transaction Complete.
 		 * @param dma_channel

@@ -4,7 +4,7 @@
 #include "cmsis/stm/stm32f1xx.h"
 #include "config/device-config.h"
 #include "middleware/collections/circuit-buffer.h"
-#include "middleware/enums/return-codes.h"
+#include "middleware/data/enums/return-codes.h"
 
 namespace STM32F103XB
 {

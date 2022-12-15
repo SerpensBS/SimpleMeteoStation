@@ -1,7 +1,7 @@
 #ifndef SIMPLEMETEOSTATION_APPLICATION_SOURCES_TASKS_GET_AND_PRINT_MEASURES_TASK_H_
 #define SIMPLEMETEOSTATION_APPLICATION_SOURCES_TASKS_GET_AND_PRINT_MEASURES_TASK_H_
 
-#include "middleware/enums/return-codes.h"
+#include "middleware/data/enums/return-codes.h"
 #include "middleware/interfaces/isensor.h"
 #include "sources/controllers/display-controller.h"
 

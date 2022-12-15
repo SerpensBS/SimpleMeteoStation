@@ -1,7 +1,7 @@
 #ifndef SIMPLEMETEOSTATION_APPLICATION_SOURCES_INTERFACES_ITASK_H_
 #define SIMPLEMETEOSTATION_APPLICATION_SOURCES_INTERFACES_ITASK_H_
 
-#include "middleware/enums/return-codes.h"
+#include "middleware/data/enums/return-codes.h"
 
 namespace Application
 {

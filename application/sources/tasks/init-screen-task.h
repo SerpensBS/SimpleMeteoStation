@@ -1,7 +1,7 @@
 #ifndef SIMPLEMETEOSTATION_APPLICATION_SOURCES_TASKS_INIT_SCREEN_TASK_H_
 #define SIMPLEMETEOSTATION_APPLICATION_SOURCES_TASKS_INIT_SCREEN_TASK_H_
 
-#include "middleware/enums/return-codes.h"
+#include "middleware/data/enums/return-codes.h"
 #include "sources/controllers/display-controller.h"
 
 namespace Application
