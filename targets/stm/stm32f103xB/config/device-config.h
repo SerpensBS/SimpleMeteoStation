@@ -2,6 +2,7 @@
 #define SIMPLEMETEOSTATION_TARGETS_STM_STM32F103XB_CONFIG_DEVICE_CONFIG_H_
 
 #include "cmsis/stm/stm32f1xx.h"
+#include "middleware/data/configurations/logger-configuration.h"
 
 namespace STM32F103XB
 {
@@ -23,17 +24,38 @@ namespace STM32F103XB
 		/**
 		 * Размер буфера UART3.
 		 */
-		static constexpr uint32_t UART3BufferSize = 64;
+		static constexpr uint32_t UART3BufferSize = 256;
 
 		/**
 		 * Размер буфера отправки каналов DMA.
 		 */
-		static constexpr uint32_t DMAChannelsTransactionBufferSize = 64;
+		static constexpr uint32_t DMAChannelsTransactionBufferSize = 128;
 
 		/**
 		 * Приоритет прерываний DMA1->Channel2. Обрабатывает отправку в UART.
 		 */
 		static constexpr uint32_t DMAChannel2InterruptPriority = 0;
+
+		/**
+		 * Конфигурация loggerr'а.
+		 */
+		static constexpr Middleware::LoggerConfiguration LoggerConfiguration
+		{
+			/**
+			 * Минимальный уровень логирования.
+			 */
+			 Middleware::LogLevel::Trace,
+
+			 /**
+			  * Максимальный уровень логирования.
+			  */
+			  Middleware::LogLevel::Error
+		};
+
+		/**
+		 * Размер буфера logger'а.
+		 */
+		static constexpr uint32_t StaticBufferLogSize = 100;
 	};
 }
 

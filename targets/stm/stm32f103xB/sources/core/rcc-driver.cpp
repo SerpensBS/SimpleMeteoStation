@@ -7,7 +7,7 @@ namespace STM32F103XB
 	Middleware::ReturnCode RCCDriver::CreateSingleInstance(uint32_t target_HCLK, RCCDriver*& out_rcc_driver)
 	{
 		// Контролируем уникальность экземпляра драйвера RCC.
-		if (!instance.isInitialized)
+		if (instance.isInitialized)
 		{
 			return Middleware::ReturnCode::ERROR;
 		}

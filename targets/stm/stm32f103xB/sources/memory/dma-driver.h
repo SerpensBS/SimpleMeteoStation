@@ -35,6 +35,14 @@ namespace STM32F103XB
 		bool isInitialized = false;
 
 		/**
+		 * Инициализировать отправку массива данных в DMA.
+		 * @param destination_address Адрес назначения
+		 * @param data_message Сообщение, которое необходимо отправить
+		 * @param data_count Количество байт, которое будем отправлять
+		 */
+		void Send(volatile uint32_t destination_address, const char* data_message, uint32_t data_count);
+
+		/**
 		 * Конструктор драйвера канала DMA
 		 * @param dma_channel_register Регистр канала DMA
 		 */
@@ -71,21 +79,21 @@ namespace STM32F103XB
 		[[nodiscard]] bool DMAIsRunning() const;
 
 		/**
-		 * Инициализировать отправку массива данных в DMA.
-		 * @param destination_address Адрес назначения
-		 * @param data_message Сообщение, которое необходимо отправить
-		 * @param data_count Количество байт, которое будем отправлять
-		 */
-		void SendDMA(volatile uint32_t destination_address, const char* data_message, uint32_t data_count);
-
-		/**
 		 * Инициализирует отправку массива данных в DMA из кольцевого буфера.
 		 * @tparam size Размер кольцевого буфера
 		 * @param destination_address Адрес назначения
 		 * @param message_buffer Кольцевой буфер
 		 */
 		template<uint32_t size>
-		void SendDMAFromCircuitBuffer(volatile uint32_t destination_address, Middleware::CircuitBuffer<size>& message_buffer);
+		void SendDMA(volatile uint32_t destination_address, Middleware::CircuitBuffer<size>& message_buffer);
+
+		/**
+		 * Инициализировать отправку массива данных в DMA.
+		 * @param destination_address Адрес назначения
+		 * @param data_message Сообщение, которое необходимо отправить
+		 * @param data_count Количество байт, которое будем отправлять
+		 */
+		void SendDMA(volatile uint32_t destination_address, const char* data_message, uint32_t data_count = 0);
 
 		DMADriver() = delete;
 		DMADriver(const DMADriver&) = delete;

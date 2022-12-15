@@ -1,7 +1,7 @@
 #ifndef SIMPLEMETEOSTATION_APPLICATION_TESTS_MOCKS_SENSOR_MOCK_H_
 #define SIMPLEMETEOSTATION_APPLICATION_TESTS_MOCKS_SENSOR_MOCK_H_
 
-#include "middleware/enums/return-codes.h"
+#include "middleware/data/enums/return-codes.h"
 #include "middleware/interfaces/isensor.h"
 
 namespace ApplicationTests

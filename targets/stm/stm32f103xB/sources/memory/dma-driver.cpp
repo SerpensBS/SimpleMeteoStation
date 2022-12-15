@@ -63,6 +63,33 @@ namespace STM32F103XB
 
 	void DMADriver::SendDMA(volatile uint32_t destination_address, const char* data_message, uint32_t data_count)
 	{
+		if (!data_count)
+		{
+			// Вычисляем длину сообщения.
+			while(data_message[data_count] != '\0')
+			{
+				++data_count;
+			}
+
+			if (!data_count)
+			{
+				return;
+			}
+		}
+
+		for (
+			uint32_t i = 0;
+			'\0' != data_message[i]  && DeviceConfig::DMAChannelsTransactionBufferSize > i;
+			++i)
+		{
+			dma_channel_transaction_buffer_[i] = data_message[i];
+		}
+
+		Send(destination_address, dma_channel_transaction_buffer_, data_count);
+	}
+
+	void DMADriver::Send(volatile uint32_t destination_address, const char* data_message, uint32_t data_count)
+	{
 		// Отключаем канал DMA:
 		dma_channel_register_.CCR &= ~DMA_CCR_EN_Msk;
 

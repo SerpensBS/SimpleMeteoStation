@@ -7,6 +7,7 @@ namespace STM32F103XB
 
 	Middleware::ReturnCode UARTDriver::CreateSingleInstance(
 		USART_TypeDef& usart_type,
+		RCCDriver& rcc_driver,
 		GPIODriver& gpio_driver,
 		DMADriver& dma_driver,
 		uint32_t bus_speed,
@@ -34,6 +35,7 @@ namespace STM32F103XB
 			RCC->APB1ENR |= RCC_APB1ENR_USART3EN;
 
 			uart3.dma_channel_driver_ = &dma_driver;
+			uart3.rcc_driver_ = &rcc_driver;
 			status = uart3.Init(bus_speed, baud_rate);
 
 			if (Middleware::ReturnCode::OK == status)
@@ -80,22 +82,26 @@ namespace STM32F103XB
 		return Middleware::ReturnCode::OK;
 	}
 
-	void UARTDriver::SendMessage(const char* message_text, uint32_t message_length)
+	void UARTDriver::SendMessage(const char* message_text)
 	{
-		// Если размер сообщения не указан - вычисляем самостоятельно.
-		if (0 == message_length)
-		{
-			while(message_text[message_length] != '\0')
-			{
-				++message_length;
-			}
+		uint32_t message_length = 0;
 
-			if (!message_length)
-			{
-				return;
-			}
+		// Вычисляем длину сообщения.
+		while(message_text[message_length] != '\0')
+		{
+			++message_length;
 		}
 
+		if (!message_length)
+		{
+			return;
+		}
+
+		SendMessage(message_text, message_length);
+	}
+
+	void UARTDriver::SendMessage(const char* message_text, uint32_t message_length)
+	{
 		// Если DMA в данный момент уже занят - кладем данные в буфер.
 		if (dma_channel_driver_->DMAIsRunning())
 		{
@@ -115,11 +121,16 @@ namespace STM32F103XB
 		{
 			if(!uart3.transmission_buffer_.BufferIsEmpty())
 			{
-				uart3.dma_channel_driver_->SendDMAFromCircuitBuffer(
+				uart3.dma_channel_driver_->SendDMA(
 					reinterpret_cast<uint32_t>(&uart3.usart_register_.DR),
 					uart3.transmission_buffer_);
 			}
 		}
+	}
+
+	uint32_t UARTDriver::GetCurrentBaudRate()
+	{
+		return rcc_driver_->GetAPB2Clock() / usart_register_.BRR;
 	}
 
 	#pragma clang diagnostic pop

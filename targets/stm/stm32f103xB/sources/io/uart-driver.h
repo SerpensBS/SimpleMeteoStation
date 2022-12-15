@@ -2,18 +2,20 @@
 #define SIMPLEMETEOSTATION_TARGETS_STM_STM32F103XB_SOURCES_IO_UART_DRIVER_H_
 
 #include "cmsis/stm/stm32f1xx.h"
-#include "core/rcc-driver.h"
 #include "config/device-config.h"
+#include "core/rcc-driver.h"
 #include "gpio-driver.h"
+#include "memory/dma-driver.h"
 #include "middleware/collections/circuit-buffer.h"
 #include "middleware/data/enums/return-codes.h"
+#include "middleware/interfaces/ioutput.h"
 
 namespace STM32F103XB
 {
 	/**
 	 * Драйвер UART.
 	 */
-	class UARTDriver
+	class UARTDriver : public Middleware::IOutput
 	{
 	 private:
 		/**
@@ -25,6 +27,11 @@ namespace STM32F103XB
 		 * Регистр USART.
 		 */
 		USART_TypeDef& usart_register_;
+
+		/**
+		 * Драйвер RCC.
+		 */
+		RCCDriver* rcc_driver_ = nullptr;
 
 		/**
 		 * Драйвер канала DMA.
@@ -55,7 +62,10 @@ namespace STM32F103XB
 	 public:
 		/**
 		 * Создает и инициализирует единственный экземпляр драйвера UART, если он не был создан ранее.
+		 * @param usart_type Адрес регистра USART, который будем настраивать
+		 * @param rcc_driver Драйвер RCC
 		 * @param gpio_driver Драйвер GPIO
+		 * @param dma_driver Драйвер DMA
 		 * @param bus_speed Скорость шины APB, от которой тактируется UART
 		 * @param baud_rate UART BaudRate
 		 * @param out_uart_driver Драйвер UART
@@ -63,6 +73,7 @@ namespace STM32F103XB
 		 */
 		static Middleware::ReturnCode CreateSingleInstance(
 			USART_TypeDef& usart_type,
+			RCCDriver& rcc_driver,
 			GPIODriver& gpio_driver,
 			DMADriver& dma_driver,
 			uint32_t bus_speed,
@@ -74,12 +85,20 @@ namespace STM32F103XB
 		 */
 		static void DMATransactionCompleteEventHandler(const DMADriver& dma_channel);
 
+		uint32_t GetCurrentBaudRate();
+
 		/**
 		 * Отправить сообщение по UART.
-		 * @param message_text Текст сообщения. Если не оканчивается нуль-терминатором, нужно указать длину сообщения
+		 * @param message_text Текст сообщения, ограниченный нуль-терминатором
+		 */
+		void SendMessage(const char message_text[]) override;
+
+		/**
+		 * Отправить сообщение по UART.
+		 * @param message_text Текст сообщения, который может быть не ограничен нуль-терминатором.
 		 * @param length Длина сообщения
 		 */
-		void SendMessage(const char message_text[], uint32_t length = 0);
+		void SendMessage(const char message_text[], uint32_t length);
 	};
 }
 
