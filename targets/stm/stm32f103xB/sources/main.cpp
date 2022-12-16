@@ -1,8 +1,19 @@
 #include "application/core/core.h"
 #include "config/device-config.h"
+#include "config/logger-config.h"
 #include "core/rcc-driver.h"
 #include "io/uart-driver.h"
 #include "middleware/io/logger.h"
+
+/**
+ * Бесконечный цикл. Нужен для того, чтобы DMA продолжило обрабатывать все запросы после окончания работы приложения.
+ */
+[[noreturn]] void InfiniteLoop()
+{
+	while (true)
+	{
+	}
+}
 
 int main()
 {
@@ -12,7 +23,7 @@ int main()
 
 	if (Middleware::ReturnCode::OK < status || !rcc_driver)
 	{
-		return 1;
+		return static_cast<int>(status);
 	}
 
 	// Инициализация GPIO.
@@ -21,7 +32,7 @@ int main()
 
 	if (Middleware::ReturnCode::OK < status || !gpio_driver)
 	{
-		return 1;
+		return static_cast<int>(status);
 	}
 
 	// Инициализация DMA.
@@ -30,7 +41,7 @@ int main()
 
 	if (Middleware::ReturnCode::OK < status || !dma_driver_channel2)
 	{
-		return 1;
+		return static_cast<int>(status);
 	}
 
 	// Инициализация UART3 для связи с ПК.
@@ -46,28 +57,26 @@ int main()
 
 	if (Middleware::ReturnCode::OK < status || !uart_driver)
 	{
-		return 1;
+		return static_cast<int>(status);
 	}
 
 	// Настраиваем logger.
-	Middleware::Logger<STM32F103XB::DeviceConfig::StaticBufferLogSize> logger(
+	Middleware::Logger<STM32F103XB::LoggerConfiguration::LogBufferSize> logger(
 		*uart_driver,
-		STM32F103XB::DeviceConfig::LoggerConfiguration);
+		STM32F103XB::LoggerConfiguration::LevelConfiguration);
 
 	logger.Log(Middleware::LogLevel::Info, "%s", "RCC Initialization: OK");
-
-	logger.Log(Middleware::LogLevel::Trace, "%s %lu %s %lu %s %lu %s",
-		"AHB Clock:  ", SystemCoreClock,
-		"\n\rAPB1 Clock: ", rcc_driver->GetAPB1Clock(),
-		"\n\rAPB2 Clock: ", rcc_driver->GetAPB2Clock()
-		,"\n\r");
+	logger.Log(Middleware::LogLevel::Trace, "AHB Clock:  %lu", SystemCoreClock);
+	logger.Log(Middleware::LogLevel::Trace, "APB1 Clock: %lu", rcc_driver->GetAPB1Clock());
+	logger.Log(Middleware::LogLevel::Trace, "APB2 Clock: %lu\n\r", rcc_driver->GetAPB2Clock());
 
 	logger.Log(Middleware::LogLevel::Info, "%s", "UART Initialization: OK");
-
-	logger.Log(Middleware::LogLevel::Trace, "%s %lu %s",
-		"UART3 BaudRate:  ", uart_driver->GetCurrentBaudRate()
-		,"\n\r");
+	logger.Log(Middleware::LogLevel::Trace, "UART3 BaudRate: %lu\n\r", uart_driver->GetCurrentBaudRate());
 
 	// Запускаем основную логику приложения.
-	Application::Core::Run(nullptr, nullptr, nullptr, nullptr, nullptr);
+	logger.Log(Middleware::LogLevel::Info, "%s", "Start Application...");
+	status = Application::Core::Run(nullptr, nullptr, nullptr, nullptr, nullptr, uart_driver);
+
+	logger.Log(Middleware::LogLevel::Info, "Application exit with return code: %d", status);
+	InfiniteLoop();
 }

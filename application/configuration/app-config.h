@@ -1,7 +1,7 @@
 #ifndef SIMPLEMETEOSTATION_APPLICATION_CONFIGURATION_APP_CONFIG_H_
 #define SIMPLEMETEOSTATION_APPLICATION_CONFIGURATION_APP_CONFIG_H_
 
-#include "cstdint"
+#include <cstdint>
 
 namespace Application
 {

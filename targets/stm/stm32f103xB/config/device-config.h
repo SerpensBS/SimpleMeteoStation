@@ -35,27 +35,6 @@ namespace STM32F103XB
 		 * Приоритет прерываний DMA1->Channel2. Обрабатывает отправку в UART.
 		 */
 		static constexpr uint32_t DMAChannel2InterruptPriority = 0;
-
-		/**
-		 * Конфигурация loggerr'а.
-		 */
-		static constexpr Middleware::LoggerConfiguration LoggerConfiguration
-		{
-			/**
-			 * Минимальный уровень логирования.
-			 */
-			 Middleware::LogLevel::Trace,
-
-			 /**
-			  * Максимальный уровень логирования.
-			  */
-			  Middleware::LogLevel::Error
-		};
-
-		/**
-		 * Размер буфера logger'а.
-		 */
-		static constexpr uint32_t StaticBufferLogSize = 100;
 	};
 }
 

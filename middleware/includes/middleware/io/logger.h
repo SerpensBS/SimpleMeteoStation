@@ -29,6 +29,13 @@ namespace Middleware
 		 * Буфер.
 		 */
 		char buffer_[buffer_size] = {};
+
+		/**
+		 * Получить текстовый префикс для LogLevel'а.
+		 * @param log_level Уровень лога.
+		 * @return Текстовое представление префикса уровня лога.
+		 */
+		const char* GetLevelPrefix(LogLevel log_level);
 	 public:
 		explicit Logger(IOutput& output_driver, LoggerConfiguration configuration)
 			: output_driver_(output_driver), configuration_(configuration)
@@ -36,12 +43,12 @@ namespace Middleware
 		}
 
 		/**
-		 * Записать сообщение в лог
+		 * Записать сообщение в лог.
 		 * @param log_level Уровень лога
 		 * @param log_format_message Текст сообщения с нуль-терминатором
 		 */
 		template<typename ... Args>
-		inline void Log(LogLevel log_level, const char* log_format_message, Args ... args);
+		void Log(LogLevel log_level, const char* log_format_message, Args ... args);
 	};
 }
 

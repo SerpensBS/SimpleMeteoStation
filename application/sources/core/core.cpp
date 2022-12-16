@@ -1,5 +1,7 @@
 #include "configuration/app-config.h"
+#include "configuration/logger-config.h"
 #include "core/core.h"
+#include "middleware/io/logger.h"
 #include "sources/controllers/display-controller.h"
 #include "sources/tasks/task.h"
 #include "sources/tasks/get-and-print-measures-task.h"
@@ -12,11 +14,18 @@ namespace Application
 		Middleware::ISensor* pressure_sensor,
 		Middleware::ISleep* sleep_manager,
 		Middleware::IDisplay* display,
-		Middleware::IClock* clock)
+		Middleware::IClock* clock,
+		Middleware::IOutput* debug_output)
 	{
+		// Настраиваем logger.
+		Middleware::Logger<Application::LoggerConfiguration::LogBufferSize> logger(
+			*debug_output,
+			Application::LoggerConfiguration::LevelConfiguration);
+
 		// Отказываемся работать без устройства вывода и драйвера управления сном.
 		if (!sleep_manager || !display)
 		{
+			logger.Log(Middleware::LogLevel::Error, "%s", "Undefined SleepManager Driver or Display Driver!");
 			return Middleware::ReturnCode::ERROR;
 		}
 
