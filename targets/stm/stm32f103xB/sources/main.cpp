@@ -61,7 +61,7 @@ int main()
 	}
 
 	// Настраиваем logger.
-	Middleware::Logger<STM32F103XB::LoggerConfiguration::LogBufferSize> logger(
+	Application::Logger<STM32F103XB::LoggerConfiguration::LogBufferSize> logger(
 		*uart_driver,
 		STM32F103XB::LoggerConfiguration::LevelConfiguration);
 
@@ -77,6 +77,10 @@ int main()
 	logger.Log(Middleware::LogLevel::Info, "%s", "Start Application...");
 	status = Application::Core::Run(nullptr, nullptr, nullptr, nullptr, nullptr, uart_driver);
 
-	logger.Log(Middleware::LogLevel::Info, "Application exit with return code: %d", status);
+	auto log_level = Middleware::ReturnCode::OK == status
+		? Middleware::LogLevel::Info
+		: Middleware::LogLevel::Error;
+
+	logger.Log(log_level, "Application exit with return code: %d", status);
 	InfiniteLoop();
 }

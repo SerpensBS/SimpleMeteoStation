@@ -6,7 +6,7 @@
 #include "middleware/data/configurations/logger-configuration.h"
 #include "middleware/interfaces/ioutput.h"
 
-namespace Middleware
+namespace Application
 {
 	/**
 	 * Записывает сообщения в лог.
@@ -18,12 +18,12 @@ namespace Middleware
 		/**
 		 * Драйвер вывода лога.
 		 */
-		IOutput& output_driver_;
+		Middleware::IOutput& output_driver_;
 
 		/**
 		 * Конфигурация logger'а.
 		 */
-		LoggerConfiguration configuration_;
+		Middleware::LoggerConfiguration configuration_;
 
 		/**
 		 * Буфер.
@@ -35,9 +35,9 @@ namespace Middleware
 		 * @param log_level Уровень лога.
 		 * @return Текстовое представление префикса уровня лога.
 		 */
-		const char* GetLevelPrefix(LogLevel log_level);
+		const char* GetLevelPrefix(Middleware::LogLevel log_level);
 	 public:
-		explicit Logger(IOutput& output_driver, LoggerConfiguration configuration)
+		explicit Logger(Middleware::IOutput& output_driver, Middleware::LoggerConfiguration configuration)
 			: output_driver_(output_driver), configuration_(configuration)
 		{
 		}
@@ -48,7 +48,7 @@ namespace Middleware
 		 * @param log_format_message Текст сообщения с нуль-терминатором
 		 */
 		template<typename ... Args>
-		void Log(LogLevel log_level, const char* log_format_message, Args ... args);
+		void Log(Middleware::LogLevel log_level, const char* log_format_message, Args ... args);
 	};
 }
 

@@ -18,14 +18,17 @@ namespace Application
 		Middleware::IOutput* debug_output)
 	{
 		// Настраиваем logger.
-		Middleware::Logger<Application::LoggerConfiguration::LogBufferSize> logger(
+		Application::Logger<Application::LoggerConfiguration::LogBufferSize> logger(
 			*debug_output,
 			Application::LoggerConfiguration::LevelConfiguration);
 
 		// Отказываемся работать без устройства вывода и драйвера управления сном.
 		if (!sleep_manager || !display)
 		{
-			logger.Log(Middleware::LogLevel::Error, "%s", "Undefined SleepManager Driver or Display Driver!");
+			const char* undefined_driver = !sleep_manager
+				? "SleepManager"
+				: "Display";
+			logger.Log(Middleware::LogLevel::Error, "Undefined %s Driver!", undefined_driver);
 			return Middleware::ReturnCode::ERROR;
 		}
 
