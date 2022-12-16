@@ -1,9 +1,9 @@
 #include "application/core/core.h"
+#include "application/io/logger.h"
 #include "config/device-config.h"
 #include "config/logger-config.h"
 #include "core/rcc-driver.h"
 #include "io/uart-driver.h"
-#include "middleware/io/logger.h"
 
 /**
  * Бесконечный цикл. Нужен для того, чтобы DMA продолжило обрабатывать все запросы после окончания работы приложения.

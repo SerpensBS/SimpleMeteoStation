@@ -1,7 +1,7 @@
 #include "configuration/app-config.h"
 #include "configuration/logger-config.h"
 #include "core/core.h"
-#include "middleware/io/logger.h"
+#include "io/logger.h"
 #include "sources/controllers/display-controller.h"
 #include "sources/tasks/task.h"
 #include "sources/tasks/get-and-print-measures-task.h"

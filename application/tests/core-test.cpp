@@ -2,6 +2,7 @@
 #include "gtest/gtest.h"
 #include "mocks/clock-mock.h"
 #include "mocks/display-mock.h"
+#include "mocks/output-mock.h"
 #include "mocks/sensor-mock.h"
 #include "mocks/sleep-mock.h"
 
@@ -22,6 +23,7 @@ namespace ApplicationTests
 			sleep_manager = new SleepMock();
 			display = new DisplayMock<12, 4>();
 			clock = new ClockMock();
+			output = new OutputMock();
 		}
 
 		void TearDown() override
@@ -37,6 +39,9 @@ namespace ApplicationTests
 
 			delete display;
 			display = nullptr;
+
+			delete output;
+			output = nullptr;
 		}
 	 public:
 		static SensorMock* temperature_sensor;
@@ -44,6 +49,7 @@ namespace ApplicationTests
 		static SleepMock* sleep_manager;
 		static DisplayMock<12, 4>* display;
 		static ClockMock* clock;
+		static OutputMock* output;
 	};
 
 	SensorMock* CoreTests::temperature_sensor = nullptr;
@@ -51,13 +57,15 @@ namespace ApplicationTests
 	SleepMock* CoreTests::sleep_manager = nullptr;
 	DisplayMock<12, 4>* CoreTests::display = nullptr;
 	ClockMock* CoreTests::clock = nullptr;
+	OutputMock* CoreTests::output = nullptr;
 
 	/**
 	 * Запускает функциональный тест.
 	 */
 	TEST_F(CoreTests, Run)
 	{
-		Application::Core::Run(CoreTests::temperature_sensor, CoreTests::pressure_sensor, sleep_manager, display, clock);
+		auto status = Application::Core::Run(temperature_sensor, pressure_sensor, sleep_manager, display, clock, output);
+		ASSERT_EQ(Middleware::ReturnCode::OK, status);
 	}
 }
 #pragma GCC pop_options
