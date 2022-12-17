@@ -1,7 +1,5 @@
 #include "application/core/core.h"
-#include "application/io/logger.h"
-#include "config/device-config.h"
-#include "config/logger-config.h"
+#include "sources/utils/uart-logger.h"
 #include "core/rcc-driver.h"
 #include "io/uart-driver.h"
 
@@ -61,25 +59,25 @@ int main()
 	}
 
 	// Настраиваем logger.
-	Application::Logger<STM32F103XB::LoggerConfiguration::LogBufferSize> logger(
+	STM32F103XB::UartLogger logger(
 		*uart_driver,
-		STM32F103XB::LoggerConfiguration::LevelConfiguration);
+		Application::ApplicationConfiguration::LoggerLevelConfiguration);
 
-	logger.Log(Middleware::LogLevel::Info, "%s", "RCC Initialization: OK");
-	logger.Log(Middleware::LogLevel::Trace, "AHB Clock:  %lu", SystemCoreClock);
-	logger.Log(Middleware::LogLevel::Trace, "APB1 Clock: %lu", rcc_driver->GetAPB1Clock());
-	logger.Log(Middleware::LogLevel::Trace, "APB2 Clock: %lu\n\r", rcc_driver->GetAPB2Clock());
+	logger.Log(Application::LogLevel::Info, "%s", "RCC Initialization: OK");
+	logger.Log(Application::LogLevel::Trace, "AHB Clock:  %lu", SystemCoreClock);
+	logger.Log(Application::LogLevel::Trace, "APB1 Clock: %lu", rcc_driver->GetAPB1Clock());
+	logger.Log(Application::LogLevel::Trace, "APB2 Clock: %lu\n\r", rcc_driver->GetAPB2Clock());
 
-	logger.Log(Middleware::LogLevel::Info, "%s", "UART Initialization: OK");
-	logger.Log(Middleware::LogLevel::Trace, "UART3 BaudRate: %lu\n\r", uart_driver->GetCurrentBaudRate());
+	logger.Log(Application::LogLevel::Info, "%s", "UART Initialization: OK");
+	logger.Log(Application::LogLevel::Trace, "UART3 BaudRate: %lu\n\r", uart_driver->GetCurrentBaudRate());
 
 	// Запускаем основную логику приложения.
-	logger.Log(Middleware::LogLevel::Info, "%s", "Start Application...");
-	status = Application::Core::Run(nullptr, nullptr, nullptr, nullptr, nullptr, uart_driver);
+	logger.Log(Application::LogLevel::Info, "%s", "Start Application...");
+	status = Application::Core::Run(nullptr, nullptr, nullptr, nullptr, nullptr, &logger);
 
 	auto log_level = Middleware::ReturnCode::OK == status
-		? Middleware::LogLevel::Info
-		: Middleware::LogLevel::Error;
+		? Application::LogLevel::Info
+		: Application::LogLevel::Error;
 
 	logger.Log(log_level, "Application exit with return code: %d", status);
 	InfiniteLoop();

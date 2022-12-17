@@ -8,14 +8,13 @@
 #include "memory/dma-driver.h"
 #include "middleware/collections/circuit-buffer.h"
 #include "middleware/data/enums/return-codes.h"
-#include "middleware/interfaces/ioutput.h"
 
 namespace STM32F103XB
 {
 	/**
 	 * Драйвер UART.
 	 */
-	class UARTDriver : public Middleware::IOutput
+	class UARTDriver
 	{
 	 private:
 		/**
@@ -91,7 +90,7 @@ namespace STM32F103XB
 		 * Отправить сообщение по UART.
 		 * @param message_text Текст сообщения, ограниченный нуль-терминатором
 		 */
-		void SendMessage(const char message_text[]) override;
+		void SendMessage(const char message_text[]);
 
 		/**
 		 * Отправить сообщение по UART.

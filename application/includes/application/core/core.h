@@ -1,10 +1,10 @@
 #ifndef SIMPLEMETEOSTATION_APPLICATION_INCLUDES_APPLICATION_CORE_CORE_H_
 #define SIMPLEMETEOSTATION_APPLICATION_INCLUDES_APPLICATION_CORE_CORE_H_
 
+#include "application/data/abstract/logger.h"
 #include "middleware/data/enums/return-codes.h"
 #include "middleware/interfaces/iclock.h"
 #include "middleware/interfaces/idisplay.h"
-#include "middleware/interfaces/ioutput.h"
 #include "middleware/interfaces/isensor.h"
 #include "middleware/interfaces/isleep.h"
 
@@ -32,7 +32,7 @@ namespace Application
 			Middleware::ISleep* sleep_manager,
 			Middleware::IDisplay* display,
 			Middleware::IClock* clock,
-			Middleware::IOutput* debug_output
+			Logger* logger
 		);
 	};
 }

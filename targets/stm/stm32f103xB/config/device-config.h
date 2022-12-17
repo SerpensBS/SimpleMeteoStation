@@ -2,7 +2,6 @@
 #define SIMPLEMETEOSTATION_TARGETS_STM_STM32F103XB_CONFIG_DEVICE_CONFIG_H_
 
 #include "cmsis/stm/stm32f1xx.h"
-#include "middleware/data/configurations/logger-configuration.h"
 
 namespace STM32F103XB
 {

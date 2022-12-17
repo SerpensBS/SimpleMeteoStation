@@ -1,6 +1,7 @@
+#include <cstring>
+#include "app-config.h"
 #include "gtest/gtest.h"
-#include "io/logger.h"
-#include "mocks/output-mock.h"
+#include "mocks/logger-mock.h"
 
 namespace ApplicationTests
 {
@@ -11,148 +12,94 @@ namespace ApplicationTests
 	{
 	};
 
-	#pragma region UtilityFunctions
-	/**
-	 * Получить из строки LogLevel
-	 * @param message Строка лога
-	 * @return LogLevel
-	 */
-	Middleware::LogLevel GetLogLevel(const char* message)
-	{
-		std::string message_string = message;
-
-		uint64_t end_of_prefix = message_string.find(']');
-		std::string log_level = message_string.substr(1, end_of_prefix - 1);
-
-		if (log_level == "DEBUG")
-		{
-			return Middleware::LogLevel::Debug;
-		}
-		if (log_level == "TRACE")
-		{
-			return Middleware::LogLevel::Trace;
-		}
-		if (log_level == "INFO")
-		{
-			return Middleware::LogLevel::Info;
-		}
-		if (log_level == "WARN")
-		{
-			return Middleware::LogLevel::Warn;
-		}
-		if (log_level == "ERROR")
-		{
-			return Middleware::LogLevel::Error;
-		}
-
-		return Middleware::LogLevel::Error;
-	}
-	#pragma endregion
-
 	TEST_F(LoggerTests, LogPositive)
 	{
-		const char* expected_message = "[TRACE] Hello World!\n\r";
-		const uint32_t buffer_size = 32;
+		const char* expected_message = "Hello World!";
 
-		OutputMock output;
+		Application::LogLevelLimitsConfiguration logger_configuration;
+		logger_configuration.MaxLogLevel = Application::LogLevel::Error;
+		logger_configuration.MinLogLevel = Application::LogLevel::Trace;
 
-		Middleware::LoggerConfiguration logger_configuration;
-		logger_configuration.MaxLogLevel = Middleware::LogLevel::Error;
-		logger_configuration.MinLogLevel = Middleware::LogLevel::Trace;
+		LoggerMock logger(logger_configuration);
+		logger.Log(Application::LogLevel::Trace, "%s", expected_message);
 
-		Application::Logger<buffer_size> logger(output, logger_configuration);
-		logger.Log(Middleware::LogLevel::Trace, "%s", "Hello World!");
-
-		ASSERT_STREQ(expected_message, output.GetBufferedMessage());
-		ASSERT_EQ(Middleware::LogLevel::Trace, GetLogLevel(output.GetBufferedMessage()));
+		Log result = logger.GetBufferedMessageData();
+		ASSERT_STREQ(expected_message, result.LogMessage.data());
+		ASSERT_EQ(Application::LogLevel::Trace, result.LogLevel);
 	}
 
 	TEST_F(LoggerTests, BufferSizePositive)
 	{
-		const char* expected_message = "[TRACE] Hello World!\n\r";
-		const uint32_t buffer_size = 13;
+		char expected_message[Application::ApplicationConfiguration::LogFormatterBufferSize];
+		std::memset(expected_message, 'a', Application::ApplicationConfiguration::LogFormatterBufferSize - 1);
 
-		OutputMock output;
+		Application::LogLevelLimitsConfiguration logger_configuration;
+		logger_configuration.MaxLogLevel = Application::LogLevel::Error;
+		logger_configuration.MinLogLevel = Application::LogLevel::Trace;
 
-		Middleware::LoggerConfiguration logger_configuration;
-		logger_configuration.MaxLogLevel = Middleware::LogLevel::Error;
-		logger_configuration.MinLogLevel = Middleware::LogLevel::Trace;
+		LoggerMock logger(logger_configuration);
+		logger.Log(Application::LogLevel::Trace, "%s", expected_message);
 
-		Application::Logger<buffer_size> logger(output, logger_configuration);
-		logger.Log(Middleware::LogLevel::Trace, "%s", "Hello World!");
-
-		ASSERT_STREQ(expected_message, output.GetBufferedMessage());
-		ASSERT_EQ(Middleware::LogLevel::Trace, GetLogLevel(output.GetBufferedMessage()));
+		Log result = logger.GetBufferedMessageData();
+		ASSERT_STREQ(expected_message, result.LogMessage.data());
+		ASSERT_EQ(Application::LogLevel::Trace, result.LogLevel);
 	}
 
 	TEST_F(LoggerTests, BufferSizeNegative)
 	{
-		const char* expected_message = "[TRACE] Hello World!\n\r";
-		const uint32_t buffer_size = 12;
+		char expected_message[Application::ApplicationConfiguration::LogFormatterBufferSize + 1];
+		std::memset(expected_message, 'a', Application::ApplicationConfiguration::LogFormatterBufferSize);
 
-		OutputMock output;
+		Application::LogLevelLimitsConfiguration logger_configuration;
+		logger_configuration.MaxLogLevel = Application::LogLevel::Error;
+		logger_configuration.MinLogLevel = Application::LogLevel::Trace;
 
-		Middleware::LoggerConfiguration logger_configuration;
-		logger_configuration.MaxLogLevel = Middleware::LogLevel::Error;
-		logger_configuration.MinLogLevel = Middleware::LogLevel::Trace;
+		LoggerMock logger(logger_configuration);
+		logger.Log(Application::LogLevel::Trace, "%s", expected_message);
 
-		Application::Logger<buffer_size> logger(output, logger_configuration);
-		logger.Log(Middleware::LogLevel::Trace, "%s", "Hello World!");
-
-		ASSERT_STRNE(expected_message, output.GetBufferedMessage());
-		ASSERT_EQ(Middleware::LogLevel::Error, GetLogLevel(output.GetBufferedMessage()));
+		Log result = logger.GetBufferedMessageData();
+		ASSERT_STRNE(expected_message, result.LogMessage.data());
+		ASSERT_EQ(Application::LogLevel::Error, result.LogLevel);
 	}
 
 	TEST_F(LoggerTests, LogLevelPositive)
 	{
-		OutputMock output;
+		const char* expected_message = "Hello World!";
 
-		Middleware::LoggerConfiguration logger_configuration;
-		logger_configuration.MaxLogLevel = Middleware::LogLevel::Error;
-		logger_configuration.MinLogLevel = Middleware::LogLevel::Trace;
+		Application::LogLevelLimitsConfiguration logger_configuration;
+		logger_configuration.MaxLogLevel = Application::LogLevel::Error;
+		logger_configuration.MinLogLevel = Application::LogLevel::Trace;
+		LoggerMock logger(logger_configuration);
 
-		const uint32_t buffer_size = 32;
-		Application::Logger<buffer_size> logger(output, logger_configuration);
+		for (int i = 0; i <= static_cast<int>(Application::LogLevel::Error); ++i)
+		{
+			auto expected_log_level = static_cast<Application::LogLevel>(i);
+			logger.Log(expected_log_level, "%s", expected_message);
+			Log result = logger.GetBufferedMessageData();
 
-		logger.Log(Middleware::LogLevel::Debug, "%s", "Hello World!");
-		ASSERT_EQ(Middleware::LogLevel::Debug, GetLogLevel(output.GetBufferedMessage()));
-
-		output.ClearBufferedMessage();
-		logger.Log(Middleware::LogLevel::Trace, "%s", "Hello World!");
-		ASSERT_EQ(Middleware::LogLevel::Trace, GetLogLevel(output.GetBufferedMessage()));
-
-		output.ClearBufferedMessage();
-		logger.Log(Middleware::LogLevel::Info, "%s", "Hello World!");
-		ASSERT_EQ(Middleware::LogLevel::Info, GetLogLevel(output.GetBufferedMessage()));
-
-		output.ClearBufferedMessage();
-		logger.Log(Middleware::LogLevel::Warn, "%s", "Hello World!");
-		ASSERT_EQ(Middleware::LogLevel::Warn, GetLogLevel(output.GetBufferedMessage()));
-
-		output.ClearBufferedMessage();
-		logger.Log(Middleware::LogLevel::Error, "%s", "Hello World!");
-		ASSERT_EQ(Middleware::LogLevel::Error, GetLogLevel(output.GetBufferedMessage()));
+			ASSERT_STREQ(expected_message, result.LogMessage.data());
+			ASSERT_EQ(expected_log_level, result.LogLevel);
+		}
 	}
 
 	TEST_F(LoggerTests, ParseArgumentsPositive)
 	{
-		const char* expected_message = "[TRACE] Hello 1 2 2.1 3.4\n\r";
-		const uint32_t buffer_size = 32;
+		const char* expected_message = "Hello 1 2 2.1 3.4";
 
-		OutputMock output;
+		Application::LogLevelLimitsConfiguration logger_configuration;
+		logger_configuration.MaxLogLevel = Application::LogLevel::Error;
+		logger_configuration.MinLogLevel = Application::LogLevel::Trace;
+		LoggerMock logger(logger_configuration);
 
-		Middleware::LoggerConfiguration logger_configuration;
-		logger_configuration.MaxLogLevel = Middleware::LogLevel::Error;
-		logger_configuration.MinLogLevel = Middleware::LogLevel::Trace;
-
-		Application::Logger<buffer_size> logger(output, logger_configuration);
-		logger.Log(Middleware::LogLevel::Trace, "%s %lu %ld %1.1f %1.1f", "Hello",
+		logger.Log(Application::LogLevel::Trace, "%s %lu %ld %1.1f %1.1f", "Hello",
 			static_cast<uint32_t>(1),
 			static_cast<int32_t>(2),
 			static_cast<float>(2.1f),
 			static_cast<double>(3.4));
 
-		ASSERT_STREQ(expected_message, output.GetBufferedMessage());
-		ASSERT_EQ(Middleware::LogLevel::Trace, GetLogLevel(output.GetBufferedMessage()));
+		Log result = logger.GetBufferedMessageData();
+
+		ASSERT_STREQ(expected_message, result.LogMessage.data());
+		ASSERT_EQ(Application::LogLevel::Trace, result.LogLevel);
 	}
 }

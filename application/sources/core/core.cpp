@@ -1,7 +1,5 @@
 #include "configuration/app-config.h"
-#include "configuration/logger-config.h"
-#include "core/core.h"
-#include "io/logger.h"
+#include "application/core/core.h"
 #include "sources/controllers/display-controller.h"
 #include "sources/tasks/task.h"
 #include "sources/tasks/get-and-print-measures-task.h"
@@ -15,20 +13,15 @@ namespace Application
 		Middleware::ISleep* sleep_manager,
 		Middleware::IDisplay* display,
 		Middleware::IClock* clock,
-		Middleware::IOutput* debug_output)
+		Logger* logger)
 	{
-		// Настраиваем logger.
-		Application::Logger<Application::LoggerConfiguration::LogBufferSize> logger(
-			*debug_output,
-			Application::LoggerConfiguration::LevelConfiguration);
-
 		// Отказываемся работать без устройства вывода и драйвера управления сном.
 		if (!sleep_manager || !display)
 		{
 			const char* undefined_driver = !sleep_manager
 				? "SleepManager"
 				: "Display";
-			logger.Log(Middleware::LogLevel::Error, "Undefined %s Driver!", undefined_driver);
+			logger->Log(LogLevel::Error, "Undefined %s Driver!", undefined_driver);
 			return Middleware::ReturnCode::ERROR;
 		}
 
