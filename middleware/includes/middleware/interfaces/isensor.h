@@ -2,7 +2,7 @@
 #define SIMPLEMETEOSTATION_MIDDLEWARE_INCLUDES_MIDDLEWARE_INTERFACES_ISENSOR_H_
 
 #include <cstdint>
-#include "middleware/enums/return-codes.h"
+#include "middleware/data/enums/return-codes.h"
 
 namespace Middleware
 {

@@ -1,5 +1,5 @@
-#include "configuration/app-config.h"
-#include "core/core.h"
+#include "config/app-config.h"
+#include "application/core/core.h"
 #include "sources/controllers/display-controller.h"
 #include "sources/tasks/task.h"
 #include "sources/tasks/get-and-print-measures-task.h"
@@ -12,11 +12,16 @@ namespace Application
 		Middleware::ISensor* pressure_sensor,
 		Middleware::ISleep* sleep_manager,
 		Middleware::IDisplay* display,
-		Middleware::IClock* clock)
+		Middleware::IClock* clock,
+		Logger* logger)
 	{
 		// Отказываемся работать без устройства вывода и драйвера управления сном.
 		if (!sleep_manager || !display)
 		{
+			const char* undefined_driver = !sleep_manager
+				? "SleepManager"
+				: "Display";
+			logger->Log(LogLevel::Error, "Undefined %s Driver!", undefined_driver);
 			return Middleware::ReturnCode::ERROR;
 		}
 

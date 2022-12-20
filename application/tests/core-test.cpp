@@ -1,9 +1,10 @@
-#include "core/core.h"
+#include "application/core/core.h"
 #include "gtest/gtest.h"
 #include "mocks/clock-mock.h"
 #include "mocks/display-mock.h"
 #include "mocks/sensor-mock.h"
 #include "mocks/sleep-mock.h"
+#include "utils/console-logger.h"
 
 #pragma GCC push_options
 #pragma GCC optimize ("O0")
@@ -17,21 +18,14 @@ namespace ApplicationTests
 	 protected:
 		void SetUp() override
 		{
-			temperature_sensor = new SensorMock(23.7);
-			pressure_sensor = new SensorMock(756.3);
 			sleep_manager = new SleepMock();
 			display = new DisplayMock<12, 4>();
 			clock = new ClockMock();
+
 		}
 
 		void TearDown() override
 		{
-			delete temperature_sensor;
-			temperature_sensor = nullptr;
-
-			delete pressure_sensor;
-			pressure_sensor = nullptr;
-
 			delete sleep_manager;
 			sleep_manager = nullptr;
 
@@ -39,15 +33,11 @@ namespace ApplicationTests
 			display = nullptr;
 		}
 	 public:
-		static SensorMock* temperature_sensor;
-		static SensorMock* pressure_sensor;
 		static SleepMock* sleep_manager;
 		static DisplayMock<12, 4>* display;
 		static ClockMock* clock;
 	};
 
-	SensorMock* CoreTests::temperature_sensor = nullptr;
-	SensorMock* CoreTests::pressure_sensor = nullptr;
 	SleepMock* CoreTests::sleep_manager = nullptr;
 	DisplayMock<12, 4>* CoreTests::display = nullptr;
 	ClockMock* CoreTests::clock = nullptr;
@@ -57,7 +47,16 @@ namespace ApplicationTests
 	 */
 	TEST_F(CoreTests, Run)
 	{
-		Application::Core::Run(CoreTests::temperature_sensor, CoreTests::pressure_sensor, sleep_manager, display, clock);
+		SensorMock temperature_sensor(23.7);
+		SensorMock pressure_sensor(756.3);
+
+		Application::LogLevelLimitsConfiguration logger_configuration;
+		logger_configuration.MaxLogLevel = Application::LogLevel::Error;
+		logger_configuration.MinLogLevel = Application::LogLevel::Trace;
+		ConsoleLogger logger(logger_configuration);
+
+		auto status = Application::Core::Run(&temperature_sensor, &pressure_sensor, sleep_manager, display, clock, &logger);
+		ASSERT_EQ(Middleware::ReturnCode::OK, status);
 	}
 }
 #pragma GCC pop_options
