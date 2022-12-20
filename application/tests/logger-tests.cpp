@@ -1,5 +1,5 @@
 #include <cstring>
-#include "app-config.h"
+#include "config/app-config.h"
 #include "gtest/gtest.h"
 #include "mocks/logger-mock.h"
 

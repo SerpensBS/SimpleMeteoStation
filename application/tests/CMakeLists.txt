@@ -8,7 +8,7 @@ file (GLOB_RECURSE HEADER_FILES ${APPLICATION_FOLDER}/*.h)
 add_executable(${PROJECT_NAME} ${SOURCE_FILES} ${HEADER_FILES})
 
 # Шарим внутри библиотеки корневую директорию.
-target_include_directories(${PROJECT_NAME} PRIVATE ${APPLICATION_FOLDER}/configuration ${APPLICATION_FOLDER}/includes)
+target_include_directories(${PROJECT_NAME} PRIVATE ${APPLICATION_FOLDER}/config ${APPLICATION_FOLDER}/includes)
 
 # Качаем GTest для Unit-тестирования.
 include(FetchContent)

@@ -1,4 +1,4 @@
-#include "configuration/app-config.h"
+#include "config/app-config.h"
 #include "application/core/core.h"
 #include "sources/controllers/display-controller.h"
 #include "sources/tasks/task.h"
