@@ -4,14 +4,14 @@
 #include <chrono>
 #include <thread>
 
-#include "middleware/interfaces/isleep.h"
+#include "application/interfaces/isleep.h"
 
 namespace ApplicationTests
 {
 	/**
 	 * Mock для драйвера, отвечающего за режимы работы и сна.
 	 */
-	class SleepMock : public Middleware::ISleep
+	class SleepMock : public Application::ISleep
 	{
 	 public:
 		/**

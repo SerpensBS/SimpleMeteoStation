@@ -1,6 +1,7 @@
 #ifndef SIMPLEMETEOSTATION_TARGETS_STM_STM32F103XB_SOURCES_CORE_POWER_DRIVER_H_
 #define SIMPLEMETEOSTATION_TARGETS_STM_STM32F103XB_SOURCES_CORE_POWER_DRIVER_H_
 
+#include "application/interfaces/isleep.h"
 #include "cmsis/stm/stm32f1xx.h"
 #include "middleware/data/enums/return-codes.h"
 #include "sources/timers/system-timer.h"
@@ -10,7 +11,7 @@ namespace STM32F103XB
 	/**
 	 * Драйвер управления питанием.
 	 */
-	class PowerDriver
+	class PowerDriver : public Application::ISleep
 	{
 	 private:
 		/**
@@ -29,7 +30,7 @@ namespace STM32F103XB
 		bool isInitialized = false;
 
 		PowerDriver() = default;
-		~PowerDriver() = default;
+		~PowerDriver() override = default;
 
 		/**
 		 * Переводит контроллер в Sleep Mode.
@@ -61,7 +62,7 @@ namespace STM32F103XB
 		 * Останавливает контроллер и переводит его в режим пониженного энергопотребления.
 		 * @param sleep_time_ms Время сна в миллисекундах
 		 */
-		void Sleep(uint32_t sleep_time_ms);
+		void Sleep(uint32_t sleep_time_ms) override;
 	};
 }
 
