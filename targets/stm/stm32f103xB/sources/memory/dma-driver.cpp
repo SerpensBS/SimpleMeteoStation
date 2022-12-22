@@ -22,7 +22,7 @@ namespace STM32F103XB
 		return Middleware::ReturnCode::ERROR;
 	}
 
-	bool DMADriver::DMAIsRunning() const
+	bool DMADriver::IsRunning() const
 	{
 		return (dma_channel_register_.CCR & DMA_CCR_EN_Msk);
 	}

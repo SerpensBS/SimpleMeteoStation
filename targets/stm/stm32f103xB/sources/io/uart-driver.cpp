@@ -81,6 +81,7 @@ namespace STM32F103XB
 
 		return Middleware::ReturnCode::OK;
 	}
+	#pragma clang diagnostic pop
 
 	void UARTDriver::SendMessage(const char* message_text)
 	{
@@ -103,7 +104,7 @@ namespace STM32F103XB
 	void UARTDriver::SendMessage(const char* message_text, uint32_t message_length)
 	{
 		// Если DMA в данный момент уже занят - кладем данные в буфер.
-		if (dma_channel_driver_->DMAIsRunning())
+		if (dma_channel_driver_->IsRunning())
 		{
 			transmission_buffer_.PutTail(message_text, message_length);
 		}
@@ -132,6 +133,4 @@ namespace STM32F103XB
 	{
 		return rcc_driver_->GetAPB2Clock() / usart_register_.BRR;
 	}
-
-	#pragma clang diagnostic pop
 }

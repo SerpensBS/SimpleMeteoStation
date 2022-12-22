@@ -56,6 +56,12 @@ namespace STM32F103XB
 		Middleware::ReturnCode Init(uint32_t target_HCLK);
 
 		/**
+	 	 * Возвращает частоту AHB (HCLK).
+	 	 * @return HCLK
+	 	 */
+		[[maybe_unused]] uint32_t GetAHBClock();
+
+		/**
 	 	 * Возвращает частоту APB1 (PCLK1).
 	 	 * @return PCLK1
 	 	 */

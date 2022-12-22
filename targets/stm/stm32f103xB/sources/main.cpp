@@ -1,7 +1,9 @@
 #include "application/core/core.h"
 #include "sources/utils/uart-logger.h"
-#include "core/rcc-driver.h"
-#include "io/uart-driver.h"
+#include "sources/core/power-driver.h"
+#include "sources/core/rcc-driver.h"
+#include "sources/timers/system-timer.h"
+#include "sources/io/uart-driver.h"
 
 /**
  * Бесконечный цикл. Нужен для того, чтобы DMA продолжило обрабатывать все запросы после окончания работы приложения.
@@ -71,6 +73,24 @@ int main()
 	logger.Log(Application::LogLevel::Info, "%s", "UART Initialization: OK");
 	logger.Log(Application::LogLevel::Trace, "UART3 BaudRate: %lu\n\r", uart_driver->GetCurrentBaudRate());
 
+	STM32F103XB::SystemTimer* system_timer = nullptr;
+	status = STM32F103XB::SystemTimer::CreateSingleInstance(*rcc_driver, system_timer);
+
+	if (Middleware::ReturnCode::OK < status || !system_timer)
+	{
+		logger.Log(Application::LogLevel::Error, "Failed to initialize system timer driver. Error code:  %d", status);
+		InfiniteLoop();
+	}
+
+	STM32F103XB::PowerDriver* power_driver = nullptr;
+	status = STM32F103XB::PowerDriver::CreateSingleInstance(*system_timer, power_driver);
+
+	if (Middleware::ReturnCode::OK < status || !power_driver)
+	{
+		logger.Log(Application::LogLevel::Error, "Failed to initialize power control driver. Error code:  %d", status);
+		InfiniteLoop();
+	}
+
 	// Запускаем основную логику приложения.
 	logger.Log(Application::LogLevel::Info, "%s", "Start Application...");
 	status = Application::Core::Run(nullptr, nullptr, nullptr, nullptr, nullptr, &logger);
@@ -80,5 +100,6 @@ int main()
 		: Application::LogLevel::Error;
 
 	logger.Log(log_level, "Application exit with return code: %d", status);
+
 	InfiniteLoop();
 }

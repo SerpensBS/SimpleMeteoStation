@@ -34,6 +34,11 @@ namespace STM32F103XB
 		 * Приоритет прерываний DMA1->Channel2. Обрабатывает отправку в UART.
 		 */
 		static constexpr uint32_t DMAChannel2InterruptPriority = 0;
+
+		/**
+		 * Приоритет прерываний системного таймера.
+		 */
+		static constexpr uint32_t SystemTimerInterruptPriority = 0;
 	};
 }
 
