@@ -61,7 +61,7 @@ int main()
 	}
 
 	// Настраиваем logger.
-	STM32F103XB::UartLogger logger(
+	STM32F103XB::UARTLogger logger(
 		*uart_driver,
 		Application::ApplicationConfiguration::LoggerLevelConfiguration);
 
@@ -82,8 +82,17 @@ int main()
 		InfiniteLoop();
 	}
 
+	STM32F103XB::RTCDriver* rtc_driver = nullptr;
+	status = STM32F103XB::RTCDriver::CreateSingleInstance(*system_timer, logger, rtc_driver, true);
+
+	if (Middleware::ReturnCode::OK < status || !rtc_driver)
+	{
+		logger.Log(Application::LogLevel::Error, "Failed to initialize RTC driver. Error code:  %d", status);
+		InfiniteLoop();
+	}
+
 	STM32F103XB::PowerDriver* power_driver = nullptr;
-	status = STM32F103XB::PowerDriver::CreateSingleInstance(*system_timer, power_driver);
+	status = STM32F103XB::PowerDriver::CreateSingleInstance(*dma_driver_channel2, *rtc_driver, logger, power_driver);
 
 	if (Middleware::ReturnCode::OK < status || !power_driver)
 	{
@@ -93,7 +102,7 @@ int main()
 
 	// Запускаем основную логику приложения.
 	logger.Log(Application::LogLevel::Info, "%s", "Start Application...");
-	status = Application::Core::Run(nullptr, nullptr, nullptr, nullptr, nullptr, &logger);
+	status = Application::Core::Run(nullptr, nullptr, power_driver, nullptr, nullptr, &logger);
 
 	auto log_level = Middleware::ReturnCode::OK == status
 		? Application::LogLevel::Info

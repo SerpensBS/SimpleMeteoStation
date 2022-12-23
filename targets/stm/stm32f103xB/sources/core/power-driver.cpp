@@ -5,57 +5,66 @@ namespace STM32F103XB
 {
 	PowerDriver PowerDriver::instance;
 
-	void PowerDriver::SleepController(uint32_t sleep_time_ms)
+	void PowerDriver::SleepMCU()
 	{
 		// Сбрасываем бит глубокого сна.
 		SCB->SCR &= ~SCB_SCR_SLEEPDEEP_Msk;
 
-		// Уходим в сон. Настраиваем прерывания так, чтобы по выходу из них мы снова уходили в сон.
-		SCB->SCR |= 1 << SCB_SCR_SLEEPONEXIT_Pos;
+		// Уходим в сон. Настраиваем прерывания так, чтобы прерывания переводили нас обратно в Run Mode.
+		SCB->SCR &= ~SCB_SCR_SLEEPONEXIT_Msk;
 
-		// Устанавливаем будильник и уходим в сон.
-		system_timer_->CountDown(sleep_time_ms, SleepOnExitModeOFF);
+		// Уходим в сон.
 		__WFI();
 	}
 
-	void PowerDriver::StopController(uint32_t stop_time_s)
+	void PowerDriver::StopMCU(uint32_t stop_time_sec)
 	{
+		// Ставим будильник и уходим в режим остановки.
+		auto status = rtc_driver_->SetAlarm(rtc_driver_->GetCounterValue() + stop_time_sec);
+
+		if (Middleware::ReturnCode::OK != status)
+		{
+			logger_->Log(Application::LogLevel::Error, "Set Alarm Error. No entry to stop mode. Returned code: %d", status);
+			return;
+		}
+
 		// Выставляем бит глубокого сна.
 		SCB->SCR |= 1 << SCB_SCR_SLEEPDEEP_Pos;
 
 		// Сбрасываем Power down deep sleep.
 		PWR->CR &= ~PWR_CR_PDDS_Msk;
 
-		// Если необходимо, устанавливаем режим low-power deep-sleep:
+		// Устанавливаем режим low-power deep-sleep:
 		PWR->CR |= 1 << PWR_CR_LPDS_Pos;
 
-		// Включаем внешние прерывания.
-		EXTI->IMR |= EXTI_IMR_MR17;
-		EXTI->RTSR |= EXTI_RTSR_TR17;
-		NVIC_EnableIRQ(RTC_Alarm_IRQn);
+		// Настраиваем прерывания так, чтобы прерывания переводили нас обратно в Run Mode.
+		SCB->SCR &= ~SCB_SCR_SLEEPONEXIT_Msk;
 
-		// Уходим в режим остановки.
-		SCB->SCR |= 1 << SCB_SCR_SLEEPONEXIT_Pos;
 		__WFI();
 	}
 
-	void PowerDriver::Sleep(uint32_t sleep_time_ms)
+	void PowerDriver::Sleep(uint32_t sleep_time_sec)
 	{
-		uint32_t sleep_time_s = sleep_time_ms / 1000;
-		sleep_time_ms = sleep_time_ms - sleep_time_s;
+		uint32_t current_time = rtc_driver_->GetCounterValue();
 
-		if (sleep_time_s > 0)
+		// Если DMA в данный момент пересылает что-либо, переходим в сон до тех пор, пока обработка не будет закончена.
+		while(dma_driver_->IsRunning())
 		{
-			StopController(sleep_time_s);
+			SleepMCU();
 		}
 
-		if (sleep_time_ms > 0)
+		// Если на предыдущем шаге мы не проспали время когда нам надо просыпаться - засыпаем.
+		if (current_time < rtc_driver_->GetCounterValue() + sleep_time_sec)
 		{
-			SleepController(sleep_time_ms);
+			StopMCU(sleep_time_sec);
 		}
 	}
 
-	Middleware::ReturnCode PowerDriver::CreateSingleInstance(SystemTimer& system_timer, PowerDriver*& out_power_driver)
+	Middleware::ReturnCode PowerDriver::CreateSingleInstance(
+		DMADriver& dma_driver,
+		RTCDriver& rtc_driver,
+		UARTLogger& logger,
+		PowerDriver*& out_power_driver)
 	{
 		// Контролируем уникальность экземпляра драйвера управления питанием.
 		if (instance.isInitialized)
@@ -63,17 +72,14 @@ namespace STM32F103XB
 			return Middleware::ReturnCode::ERROR;
 		}
 
-		instance.system_timer_ = &system_timer;
+		instance.dma_driver_ = &dma_driver;
+		instance.rtc_driver_ = &rtc_driver;
+		instance.logger_ = &logger;
 
 		// Устанавливаем флаг контроля инициализации.
 		instance.isInitialized = true;
 
 		out_power_driver = &instance;
 		return Middleware::ReturnCode::OK;
-	}
-
-	void PowerDriver::SleepOnExitModeOFF()
-	{
-		SCB->SCR &= ~SCB_SCR_SLEEPONEXIT_Msk;
 	}
 }

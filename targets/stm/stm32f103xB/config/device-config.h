@@ -31,6 +31,11 @@ namespace STM32F103XB
 		static constexpr uint32_t DMAChannelsTransactionBufferSize = 128;
 
 		/**
+		 * Предельное время инициализации RTC в миллисекундах.
+		 */
+		static constexpr uint32_t RTCInitializationTimeoutMs = 5000;
+
+		/**
 		 * Приоритет прерываний DMA1->Channel2. Обрабатывает отправку в UART.
 		 */
 		static constexpr uint32_t DMAChannel2InterruptPriority = 0;
@@ -39,6 +44,11 @@ namespace STM32F103XB
 		 * Приоритет прерываний системного таймера.
 		 */
 		static constexpr uint32_t SystemTimerInterruptPriority = 0;
+
+		/**
+		 * Приоритет прерывания по будильнику RTC.
+		 */
+		static constexpr uint32_t RTCAlarmInterruptPriority = 0;
 	};
 }
 

@@ -2,7 +2,7 @@
 
 namespace STM32F103XB
 {
-	const char* UartLogger::GetLevelPrefix(Application::LogLevel log_level)
+	const char* UARTLogger::GetLevelPrefix(Application::LogLevel log_level)
 	{
 		switch (log_level)
 		{
@@ -21,7 +21,7 @@ namespace STM32F103XB
 		}
 	}
 
-	void UartLogger::WriteLog(Application::LogLevel log_level, const char* log_format_message)
+	void UARTLogger::WriteLog(Application::LogLevel log_level, const char* log_format_message)
 	{
 		output_driver_.SendMessage(GetLevelPrefix(log_level));
 		output_driver_.SendMessage(log_format_message);
