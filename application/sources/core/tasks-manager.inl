@@ -7,7 +7,7 @@ namespace Application
 	Middleware::ReturnCode TasksManager<max_tasks_in_queue_count>::AddTask(
 		Application::ITask& added_task,
 		uint32_t execute_time_s,
-		int32_t repeat_task_time_s)
+		uint32_t repeat_task_time_s)
 	{
 		// Если нет нового места под подписку - выходим.
 		if (tasks_queue_.size() > max_tasks_in_queue_count)
@@ -93,13 +93,13 @@ namespace Application
 				planned_task.task->Execute();
 
 				// Если задача запланирована на повтор - задаем новое время, если нет - удаляем.
-				if (planned_task.repeat_task_time_s < 0)
+				if (0 ==planned_task.repeat_task_time_s)
 				{
 					RemoveTask(*planned_task.task);
 				}
 				else
 				{
-					planned_task.execute_task_time_s += static_cast<uint32_t>(planned_task.repeat_task_time_s);
+					planned_task.execute_task_time_s += planned_task.repeat_task_time_s;
 				}
 			}
 		}

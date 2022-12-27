@@ -1,5 +1,5 @@
-#ifndef SIMPLEMETEOSTATION_APPLICATION_SOURCES_DATA_PLANNED_TASK_H_
-#define SIMPLEMETEOSTATION_APPLICATION_SOURCES_DATA_PLANNED_TASK_H_
+#ifndef SIMPLEMETEOSTATION_APPLICATION_SOURCES_ABSTRACT_PLANNED_TASK_H_
+#define SIMPLEMETEOSTATION_APPLICATION_SOURCES_ABSTRACT_PLANNED_TASK_H_
 
 #include <cstdint>
 #include "sources/interfaces/itask.h"
@@ -9,8 +9,9 @@ namespace Application
 	/**
 	 * Данные о времени запуска и необходимости повторения для планировщика задач.
 	 */
-	struct PlannedTask
+	class PlannedTask
 	{
+	 public:
 		/**
 		 * Задача, запланированная к запуску.
 		 */
@@ -23,8 +24,9 @@ namespace Application
 
 		/**
 		 * Время, через которое надо повторить запуск задачи после предыдущего успешного запуска (сек).
+		 * Если 0 - значит, не повторяем.
 		 */
-		int32_t repeat_task_time_s = -1;
+		uint32_t repeat_task_time_s = 0;
 
 		bool operator<(const PlannedTask& another) const
 		{
@@ -33,4 +35,4 @@ namespace Application
 	};
 }
 
-#endif //SIMPLEMETEOSTATION_APPLICATION_SOURCES_DATA_PLANNED_TASK_H_
+#endif //SIMPLEMETEOSTATION_APPLICATION_SOURCES_ABSTRACT_PLANNED_TASK_H_

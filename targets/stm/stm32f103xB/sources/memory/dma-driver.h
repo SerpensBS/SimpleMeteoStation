@@ -76,7 +76,7 @@ namespace STM32F103XB
 		 * Занят ли в данный момент канал DMA.
 		 * @return true - канал DMA занят. false - канал DMA свободен
 		 */
-		[[nodiscard]] bool DMAIsRunning() const;
+		[[nodiscard]] bool IsRunning() const;
 
 		/**
 		 * Инициализирует отправку массива данных в DMA из кольцевого буфера.

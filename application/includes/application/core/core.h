@@ -3,10 +3,10 @@
 
 #include "application/data/abstract/logger.h"
 #include "middleware/data/enums/return-codes.h"
-#include "middleware/interfaces/iclock.h"
+#include "application/interfaces/iclock.h"
 #include "middleware/interfaces/idisplay.h"
 #include "middleware/interfaces/isensor.h"
-#include "middleware/interfaces/isleep.h"
+#include "application/interfaces/isleep.h"
 
 namespace Application
 {
@@ -29,9 +29,9 @@ namespace Application
 		static Middleware::ReturnCode Run(
 			Middleware::ISensor* temperature_sensor,
 			Middleware::ISensor* pressure_sensor,
-			Middleware::ISleep* sleep_manager,
+			Application::ISleep* sleep_manager,
 			Middleware::IDisplay* display,
-			Middleware::IClock* clock,
+			Application::IClock* clock,
 			Logger* logger
 		);
 	};

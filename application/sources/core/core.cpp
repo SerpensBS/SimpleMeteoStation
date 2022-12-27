@@ -10,9 +10,9 @@ namespace Application
 {
 	Middleware::ReturnCode Core::Run(Middleware::ISensor* temperature_sensor,
 		Middleware::ISensor* pressure_sensor,
-		Middleware::ISleep* sleep_manager,
+		Application::ISleep* sleep_manager,
 		Middleware::IDisplay* display,
-		Middleware::IClock* clock,
+		Application::IClock* clock,
 		Logger* logger)
 	{
 		// Отказываемся работать без устройства вывода и драйвера управления сном.

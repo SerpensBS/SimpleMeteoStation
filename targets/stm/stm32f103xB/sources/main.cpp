@@ -1,7 +1,6 @@
 #include "application/core/core.h"
 #include "sources/utils/uart-logger.h"
-#include "core/rcc-driver.h"
-#include "io/uart-driver.h"
+#include "sources/core/power-driver.h"
 
 /**
  * Бесконечный цикл. Нужен для того, чтобы DMA продолжило обрабатывать все запросы после окончания работы приложения.
@@ -23,6 +22,9 @@ int main()
 	{
 		return static_cast<int>(status);
 	}
+
+	// Инициализация системного таймера.
+	STM32F103XB::SystemTimer::Init(*rcc_driver);
 
 	// Инициализация GPIO.
 	STM32F103XB::GPIODriver* gpio_driver = nullptr;
@@ -59,7 +61,7 @@ int main()
 	}
 
 	// Настраиваем logger.
-	STM32F103XB::UartLogger logger(
+	STM32F103XB::UARTLogger logger(
 		*uart_driver,
 		Application::ApplicationConfiguration::LoggerLevelConfiguration);
 
@@ -71,9 +73,30 @@ int main()
 	logger.Log(Application::LogLevel::Info, "%s", "UART Initialization: OK");
 	logger.Log(Application::LogLevel::Trace, "UART3 BaudRate: %lu\n\r", uart_driver->GetCurrentBaudRate());
 
+	// Инициализация драйвера RTC.
+	STM32F103XB::SystemTimer system_timer;
+	STM32F103XB::RTCDriver* rtc_driver = nullptr;
+	status = STM32F103XB::RTCDriver::CreateSingleInstance(system_timer, logger, rtc_driver, true);
+
+	if (Middleware::ReturnCode::OK < status || !rtc_driver)
+	{
+		logger.Log(Application::LogLevel::Error, "Failed to initialize RTC driver. Error code:  %d", status);
+		InfiniteLoop();
+	}
+
+	// Инициализация драйвера управления питанием.
+	STM32F103XB::PowerDriver* power_driver = nullptr;
+	status = STM32F103XB::PowerDriver::CreateSingleInstance(*dma_driver_channel2, *rtc_driver, logger, power_driver);
+
+	if (Middleware::ReturnCode::OK < status || !power_driver)
+	{
+		logger.Log(Application::LogLevel::Error, "Failed to initialize power control driver. Error code:  %d", status);
+		InfiniteLoop();
+	}
+
 	// Запускаем основную логику приложения.
 	logger.Log(Application::LogLevel::Info, "%s", "Start Application...");
-	status = Application::Core::Run(nullptr, nullptr, nullptr, nullptr, nullptr, &logger);
+	status = Application::Core::Run(nullptr, nullptr, power_driver, nullptr, rtc_driver, &logger);
 
 	auto log_level = Middleware::ReturnCode::OK == status
 		? Application::LogLevel::Info

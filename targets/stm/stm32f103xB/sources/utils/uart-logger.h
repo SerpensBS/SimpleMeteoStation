@@ -10,7 +10,7 @@ namespace STM32F103XB
 	/**
 	 * Записывает сообщения в лог.
 	 */
-	class UartLogger : public Application::Logger
+	class UARTLogger : public Application::Logger
 	{
 	 private:
 		/**
@@ -24,11 +24,6 @@ namespace STM32F103XB
 		 * @return Текстовое представление префикса уровня лога.
 		 */
 		static const char* GetLevelPrefix(Application::LogLevel log_level);
-	 public:
-		explicit UartLogger(UARTDriver& output_driver, Application::LogLevelLimitsConfiguration configuration)
-			: Application::Logger(configuration), output_driver_(output_driver)
-		{
-		}
 
 		/**
 		 * Записать сообщение в лог.
@@ -36,6 +31,11 @@ namespace STM32F103XB
 		 * @param log_format_message Текст сообщения с нуль-терминатором
 		 */
 		void WriteLog(Application::LogLevel log_level, const char* log_format_message) override;
+	 public:
+		explicit UARTLogger(UARTDriver& output_driver, Application::LogLevelLimitsConfiguration configuration)
+			: Application::Logger(configuration), output_driver_(output_driver)
+		{
+		}
 	};
 }
 

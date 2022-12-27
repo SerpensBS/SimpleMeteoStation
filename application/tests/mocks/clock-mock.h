@@ -1,14 +1,14 @@
 #ifndef SIMPLEMETEOSTATION_APPLICATION_TESTS_MOCKS_CLOCK_MOCK_H_
 #define SIMPLEMETEOSTATION_APPLICATION_TESTS_MOCKS_CLOCK_MOCK_H_
 
-#include "middleware/interfaces/iclock.h"
+#include "application/interfaces/iclock.h"
 
 namespace ApplicationTests
 {
 	/**
 	 * Mock для часов реального времени.
 	 */
-	class ClockMock : public Middleware::IClock
+	class ClockMock : public Application::IClock
 	{
 	 public:
 		/**

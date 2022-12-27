@@ -66,35 +66,50 @@ namespace STM32F103XB
 	}
 	#pragma clang diagnostic pop
 
-/**
- * Я бы не хотел, чтобы этот метод можно было вызвать статически, но он должен быть доступен коду, владеющему
- * экземпляром класса.
- */
-#pragma clang diagnostic push
-#pragma ide diagnostic ignored "readability-convert-member-functions-to-static"
+	/**
+	 * Я бы не хотел, чтобы этот метод можно было вызвать статически, но он должен быть доступен коду, владеющему
+	 * экземпляром класса.
+	 */
+	#pragma clang diagnostic push
+	#pragma ide diagnostic ignored "readability-convert-member-functions-to-static"
+	uint32_t RCCDriver::GetAHBClock()
+	{
+		// Обновляем частоту AHB.
+		SystemCoreClockUpdate();
+
+		return SystemCoreClock;
+	}
+	#pragma clang diagnostic pop
+
+	/**
+	 * Я бы не хотел, чтобы этот метод можно было вызвать статически, но он должен быть доступен коду, владеющему
+	 * экземпляром класса.
+	 */
+	#pragma clang diagnostic push
+	#pragma ide diagnostic ignored "readability-convert-member-functions-to-static"
 	[[maybe_unused]] uint32_t RCCDriver::GetAPB1Clock()
 	{
-		// Получаем частоту AHB.
+		// Обновляем частоту AHB.
 		SystemCoreClockUpdate();
 		// Рассчитываем APB1 по таблице.
 		return SystemCoreClock>>APBPrescTable[(RCC->CFGR & RCC_CFGR_PPRE1) >> RCC_CFGR_PPRE1_Pos];
 	}
-#pragma clang diagnostic pop
+	#pragma clang diagnostic pop
 
-/**
- * Я бы не хотел, чтобы этот метод можно было вызвать статически, но он должен быть доступен коду, владеющему
- * экземпляром класса.
- */
-#pragma clang diagnostic push
-#pragma ide diagnostic ignored "readability-convert-member-functions-to-static"
+	/**
+	 * Я бы не хотел, чтобы этот метод можно было вызвать статически, но он должен быть доступен коду, владеющему
+	 * экземпляром класса.
+	 */
+	#pragma clang diagnostic push
+	#pragma ide diagnostic ignored "readability-convert-member-functions-to-static"
 	[[maybe_unused]] uint32_t RCCDriver::GetAPB2Clock()
 	{
-		// Получаем частоту AHB.
+		// Обновляем частоту AHB.
 		SystemCoreClockUpdate();
 		// Рассчитываем APB2 по таблице.
 		return SystemCoreClock>>APBPrescTable[(RCC->CFGR & RCC_CFGR_PPRE2) >> RCC_CFGR_PPRE2_Pos];
 	}
-#pragma clang diagnostic pop
+	#pragma clang diagnostic pop
 
 	uint32_t RCCDriver::GetAHBPrescalerValue(uint32_t tgt_sysclk)
 	{

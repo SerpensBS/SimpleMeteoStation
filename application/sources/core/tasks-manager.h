@@ -2,8 +2,8 @@
 #define SIMPLEMETEOSTATION_APPLICATION_SOURCES_CORE_TASKS_MANAGER_H_
 
 #include <array>
-#include "middleware/interfaces/iclock.h"
-#include "sources/data/planned-task.h"
+#include "application/interfaces/iclock.h"
+#include "sources/abstract/planned-task.h"
 #include "sources/interfaces/itask.h"
 
 namespace Application
@@ -28,14 +28,14 @@ namespace Application
 		/**
 		 * Часы реального времени.
 		 */
-		Middleware::IClock& clock_;
+		Application::IClock& clock_;
 
 		/**
 		 * Запущен ли в данный момент процесс выполнения задач из очереди планировщика.
 		 */
 		bool isRunning_ = false;
 	 public:
-		explicit TasksManager(Middleware::IClock& clock)
+		explicit TasksManager(Application::IClock& clock)
 		: clock_(clock)
 		{
 		};
@@ -43,9 +43,11 @@ namespace Application
 		/**
 		 * Добавить задачу в очередь на выполнение.
 		 * @param added_task Задача, которая будет добавлена в очередь
+		 * @param execute_time_s Через сколько секунд запустить задачу
+		 * @param repeat_task_time_s Через сколько секунд после запуска повторить задачу
 		 * @return Статус операции
 		 */
-		Middleware::ReturnCode AddTask(ITask& added_task, uint32_t execute_time_s = 0, int32_t repeat_task_time_s = -1);
+		Middleware::ReturnCode AddTask(ITask& added_task, uint32_t execute_time_s = 0, uint32_t repeat_task_time_s = 0);
 
 		/**
 		 * Убрать задачу из очереди на выполнение.
