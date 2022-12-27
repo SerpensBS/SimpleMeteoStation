@@ -1,6 +1,7 @@
 #include "application/core/core.h"
 #include "sources/utils/uart-logger.h"
 #include "sources/core/power-driver.h"
+#include "sources/io/i2c-driver.h"
 
 /**
  * Бесконечный цикл. Нужен для того, чтобы DMA продолжило обрабатывать все запросы после окончания работы приложения.
@@ -74,9 +75,9 @@ int main()
 	logger.Log(Application::LogLevel::Trace, "UART3 BaudRate: %lu\n\r", uart_driver->GetCurrentBaudRate());
 
 	// Инициализация драйвера RTC.
-	STM32F103XB::SystemTimer system_timer;
+	STM32F103XB::SystemTimer rtc_timer;
 	STM32F103XB::RTCDriver* rtc_driver = nullptr;
-	status = STM32F103XB::RTCDriver::CreateSingleInstance(system_timer, logger, rtc_driver, true);
+	status = STM32F103XB::RTCDriver::CreateSingleInstance(rtc_timer, logger, rtc_driver, true);
 
 	if (Middleware::ReturnCode::OK < status || !rtc_driver)
 	{
@@ -91,6 +92,16 @@ int main()
 	if (Middleware::ReturnCode::OK < status || !power_driver)
 	{
 		logger.Log(Application::LogLevel::Error, "Failed to initialize power control driver. Error code:  %d", status);
+		InfiniteLoop();
+	}
+
+	STM32F103XB::SystemTimer i2c_timer;
+	STM32F103XB::I2CDriver* i2c_driver = nullptr;
+	status = STM32F103XB::I2CDriver::CreateSingleInstance(*I2C1, *gpio_driver, *rcc_driver, i2c_timer, logger, i2c_driver);
+
+	if (Middleware::ReturnCode::OK < status || !i2c_driver)
+	{
+		logger.Log(Application::LogLevel::Error, "Failed to initialize I2C driver. Error code:  %d", status);
 		InfiniteLoop();
 	}
 

@@ -13,12 +13,14 @@ namespace STM32F103XB
 		/**
 		 * Тактовая частота, на которую будет настроена AHB.
 		 */
-		static constexpr uint32_t TargetHCLK = 125000UL;
+		static constexpr uint32_t TargetHCLK = 2000000UL;
+		// Частота APB1 не может быть меньше чем 2MHz из-за ограничений I2C Slow Mode: RM0008 стр 758.
+		static_assert(2000000UL <= TargetHCLK);
 
 		/**
 		 * BaudRate, на который будет настроен UART3.
 		 */
-		static constexpr uint32_t UART3BaudRate = 2400;
+		static constexpr uint32_t UART3BaudRate = 115200;
 
 		/**
 		 * Размер буфера UART3.
