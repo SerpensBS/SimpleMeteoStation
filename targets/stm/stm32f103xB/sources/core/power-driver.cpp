@@ -1,10 +1,15 @@
 #include "power-driver.h"
-#include "memory/dma-driver.h"
 
 namespace STM32F103XB
 {
 	PowerDriver PowerDriver::instance;
 
+	/**
+	 * Я бы не хотел, чтобы этот метод можно было вызвать статически, но он должен быть доступен коду, владеющему
+	 * экземпляром класса.
+	 */
+	#pragma clang diagnostic push
+	#pragma ide diagnostic ignored "readability-convert-member-functions-to-static"
 	void PowerDriver::SleepMCU()
 	{
 		// Сбрасываем бит глубокого сна.
@@ -16,6 +21,7 @@ namespace STM32F103XB
 		// Уходим в сон.
 		__WFI();
 	}
+	#pragma clang diagnostic pop
 
 	void PowerDriver::StopMCU(uint32_t stop_time_sec)
 	{

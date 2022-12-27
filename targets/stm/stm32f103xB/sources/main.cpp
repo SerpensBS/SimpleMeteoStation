@@ -1,9 +1,6 @@
 #include "application/core/core.h"
 #include "sources/utils/uart-logger.h"
 #include "sources/core/power-driver.h"
-#include "sources/core/rcc-driver.h"
-#include "sources/timers/system-timer.h"
-#include "sources/io/uart-driver.h"
 
 /**
  * Бесконечный цикл. Нужен для того, чтобы DMA продолжило обрабатывать все запросы после окончания работы приложения.

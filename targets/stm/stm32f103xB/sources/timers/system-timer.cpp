@@ -21,13 +21,6 @@ namespace STM32F103XB
 		NVIC_EnableIRQ(SysTick_IRQn);
 	}
 
-	void SystemTimer::Restart()
-	{
-		// Сбрасываем предыдущее значение таймера и запускаем.
-		Clear();
-		Start();
-	}
-
 	void SystemTimer::Start()
 	{
 		// Очищаем флаги переполнения.

@@ -56,11 +56,6 @@ namespace STM32F103XB
 		uint32_t GetValue();
 
 		/**
-		 * Обнулить счетчик и перезапустить таймер.
-		 */
-		void Restart();
-
-		/**
 		 * Запустить таймер.
 		 */
 		void Start();

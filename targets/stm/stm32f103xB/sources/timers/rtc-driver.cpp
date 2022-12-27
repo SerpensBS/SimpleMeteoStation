@@ -1,5 +1,4 @@
 #include "rtc-driver.h"
-#include "config/device-config.h"
 
 namespace STM32F103XB
 {
@@ -31,8 +30,14 @@ namespace STM32F103XB
 
 				RTC->CRL |= RTC_CRL_CNF;
 				return Middleware::ReturnCode::OK;
+			/**
+			 * Всегда нужно проставлять default, что бы ни думал на этот счет Clang.
+			 */
+			#pragma clang diagnostic push
+			#pragma ide diagnostic ignored "UnreachableCode"
 			default:
 				return Middleware::ReturnCode::ERROR;
+			#pragma clang diagnostic pop
 		}
 	}
 
@@ -235,7 +240,7 @@ namespace STM32F103XB
 		/**
  		* Обработка прерываний от EXTI.
  		*/
-		void RTC_Alarm_IRQHandler(void)
+		[[maybe_unused]] void RTC_Alarm_IRQHandler(void)
 		{
 			// Нужен нам только для того, чтобы проснуться, поэтому просто сбрасываем флаг.
 			EXTI->PR |= 1 << EXTI_PR_PR17_Pos;
