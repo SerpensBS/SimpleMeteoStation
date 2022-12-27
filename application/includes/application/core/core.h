@@ -3,7 +3,7 @@
 
 #include "application/data/abstract/logger.h"
 #include "middleware/data/enums/return-codes.h"
-#include "middleware/interfaces/iclock.h"
+#include "application/interfaces/iclock.h"
 #include "middleware/interfaces/idisplay.h"
 #include "middleware/interfaces/isensor.h"
 #include "application/interfaces/isleep.h"
@@ -31,7 +31,7 @@ namespace Application
 			Middleware::ISensor* pressure_sensor,
 			Application::ISleep* sleep_manager,
 			Middleware::IDisplay* display,
-			Middleware::IClock* clock,
+			Application::IClock* clock,
 			Logger* logger
 		);
 	};

@@ -1,6 +1,7 @@
 #ifndef SIMPLEMETEOSTATION_TARGETS_STM_STM32F103XB_SOURCES_TIMERS_RTC_DRIVER_H_
 #define SIMPLEMETEOSTATION_TARGETS_STM_STM32F103XB_SOURCES_TIMERS_RTC_DRIVER_H_
 
+#include "application/interfaces/iclock.h"
 #include "middleware/data/enums/return-codes.h"
 #include "sources/timers/system-timer.h"
 #include "sources/utils/uart-logger.h"
@@ -11,7 +12,7 @@ namespace STM32F103XB
 	/**
 	 * Драйвер часов реального времени.
 	 */
-	class RTCDriver
+	class RTCDriver : public Application::IClock
 	{
 	 private:
 		/**
@@ -46,6 +47,9 @@ namespace STM32F103XB
 		 * @return  						Статус операции
 		 */
 		Middleware::ReturnCode SetConfigurationLockState(LockState configuration_lock_state);
+
+		RTCDriver() = default;
+		~RTCDriver() override = default;
 	 public:
 		/**
 		 * Создает и инициализирует единственный экземпляр драйвера часов реального времени, если он не был создан ранее.
@@ -67,7 +71,7 @@ namespace STM32F103XB
 		 * Получить значение времени, которое отсчитал RTC с момента запуска.
 		 * @return Количество секунд с момента запуска RTC.
 		 */
-		uint32_t GetCounterValue();
+		uint32_t GetCurrentTime() override;
 
 		/**
 		 * Инициализация RTC.

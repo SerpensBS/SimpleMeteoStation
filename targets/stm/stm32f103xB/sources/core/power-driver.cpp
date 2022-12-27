@@ -26,7 +26,7 @@ namespace STM32F103XB
 	void PowerDriver::StopMCU(uint32_t stop_time_sec)
 	{
 		// Ставим будильник и уходим в режим остановки.
-		auto status = rtc_driver_->SetAlarm(rtc_driver_->GetCounterValue() + stop_time_sec);
+		auto status = rtc_driver_->SetAlarm(rtc_driver_->GetCurrentTime() + stop_time_sec);
 
 		if (Middleware::ReturnCode::OK != status)
 		{
@@ -51,7 +51,7 @@ namespace STM32F103XB
 
 	void PowerDriver::Sleep(uint32_t sleep_time_sec)
 	{
-		uint32_t current_time = rtc_driver_->GetCounterValue();
+		uint32_t current_time = rtc_driver_->GetCurrentTime();
 
 		// Если DMA в данный момент пересылает что-либо, переходим в сон до тех пор, пока обработка не будет закончена.
 		while(dma_driver_->IsRunning())
@@ -60,7 +60,7 @@ namespace STM32F103XB
 		}
 
 		// Если на предыдущем шаге мы не проспали время когда нам надо просыпаться - засыпаем.
-		if (current_time < rtc_driver_->GetCounterValue() + sleep_time_sec)
+		if (current_time < rtc_driver_->GetCurrentTime() + sleep_time_sec)
 		{
 			StopMCU(sleep_time_sec);
 		}

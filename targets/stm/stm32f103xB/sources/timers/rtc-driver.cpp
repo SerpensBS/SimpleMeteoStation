@@ -78,7 +78,7 @@ namespace STM32F103XB
 		// Проверка нужна затем, чтобы за то время, пока мы добирались сюда, время не убежало вперед нашего будильника.
 		// Такое может случиться, если переданное количество секунд = 0.
 		Stop();
-		if (GetCounterValue() > seconds)
+		if (GetCurrentTime() > seconds)
 		{
 			Start();
 			logger_->Log(Application::LogLevel::Error, "%s" , "RTC Set Alarm Error: Alarm cannot be set to a past date.");
@@ -92,6 +92,8 @@ namespace STM32F103XB
 		}
 
 		// Выставляем будильник.
+		// Отнимаем единицу, т.к. при установке Alarm на текущее время мы будем разбужены через секунду, а если
+		// установим Alarm на следующую секунду - то через две.
 		RTC->ALRH = seconds >> 16;
 		RTC->ALRL = seconds - 1;
 
@@ -203,7 +205,7 @@ namespace STM32F103XB
 	 */
 	#pragma clang diagnostic push
 	#pragma ide diagnostic ignored "readability-convert-member-functions-to-static"
-	uint32_t RTCDriver::GetCounterValue()
+	uint32_t RTCDriver::GetCurrentTime()
 	{
 		return (RTC->CNTH << 16) + RTC->CNTL;
 	}

@@ -12,7 +12,7 @@ namespace Application
 		Middleware::ISensor* pressure_sensor,
 		Application::ISleep* sleep_manager,
 		Middleware::IDisplay* display,
-		Middleware::IClock* clock,
+		Application::IClock* clock,
 		Logger* logger)
 	{
 		// Отказываемся работать без устройства вывода и драйвера управления сном.

@@ -2,7 +2,7 @@
 #define SIMPLEMETEOSTATION_APPLICATION_SOURCES_CORE_TASKS_MANAGER_H_
 
 #include <array>
-#include "middleware/interfaces/iclock.h"
+#include "application/interfaces/iclock.h"
 #include "sources/abstract/planned-task.h"
 #include "sources/interfaces/itask.h"
 
@@ -28,14 +28,14 @@ namespace Application
 		/**
 		 * Часы реального времени.
 		 */
-		Middleware::IClock& clock_;
+		Application::IClock& clock_;
 
 		/**
 		 * Запущен ли в данный момент процесс выполнения задач из очереди планировщика.
 		 */
 		bool isRunning_ = false;
 	 public:
-		explicit TasksManager(Middleware::IClock& clock)
+		explicit TasksManager(Application::IClock& clock)
 		: clock_(clock)
 		{
 		};

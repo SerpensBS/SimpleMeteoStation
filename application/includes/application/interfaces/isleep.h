@@ -11,14 +11,14 @@ namespace Application
 	class ISleep
 	{
 	 public:
-		ISleep() = default;
-		virtual ~ISleep() = default;
-
 		/**
 		 * Переводит микроконтроллер в режим сна на определенное время.
 		 * @param sleep_time_s Время сна в секундах
 		 */
 		virtual void Sleep(uint32_t sleep_time_s) = 0;
+
+		ISleep() = default;
+		virtual ~ISleep() = default;
 	};
 }
 

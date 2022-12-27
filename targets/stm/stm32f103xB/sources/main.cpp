@@ -96,13 +96,12 @@ int main()
 
 	// Запускаем основную логику приложения.
 	logger.Log(Application::LogLevel::Info, "%s", "Start Application...");
-	status = Application::Core::Run(nullptr, nullptr, power_driver, nullptr, nullptr, &logger);
+	status = Application::Core::Run(nullptr, nullptr, power_driver, nullptr, rtc_driver, &logger);
 
 	auto log_level = Middleware::ReturnCode::OK == status
 		? Application::LogLevel::Info
 		: Application::LogLevel::Error;
 
 	logger.Log(log_level, "Application exit with return code: %d", status);
-
 	InfiniteLoop();
 }
