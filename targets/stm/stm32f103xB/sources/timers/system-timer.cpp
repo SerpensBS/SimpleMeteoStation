@@ -3,95 +3,78 @@
 
 namespace STM32F103XB
 {
-	SystemTimer SystemTimer::instance;
+	uint32_t SystemTimer::system_timer_counter_ms = 0;
+	uint32_t SystemTimer::started_timers_in_current_time = 0;
 
-	Middleware::ReturnCode SystemTimer::CreateSingleInstance(RCCDriver& rcc_driver, SystemTimer*& out_system_timer)
-	{
-		// Контролируем уникальность экземпляра драйвера RCC.
-		if (instance.isInitialized_)
-		{
-			return Middleware::ReturnCode::ERROR;
-		}
-
-		instance.Init();
-
-		// Определяем драйвер RCC и устанавливаем флаг контроля инициализации.
-		instance.rcc_driver_ = &rcc_driver;
-		instance.isInitialized_ = true;
-
-		out_system_timer = &instance;
-		return Middleware::ReturnCode::OK;
-	}
-
-	/**
-	 * Я бы не хотел, чтобы этот метод можно было вызвать статически, но он должен быть доступен коду, владеющему
-	 * экземпляром класса.
-	 */
-	#pragma clang diagnostic push
-	#pragma ide diagnostic ignored "readability-convert-member-functions-to-static"
-	void SystemTimer::Init()
+	void SystemTimer::Init(RCCDriver& rcc_driver)
 	{
 		SysTick->CTRL |= (1 << SysTick_CTRL_CLKSOURCE_Pos)	// Используем частоту шины AHB в качестве источника.
 			| (1 << SysTick_CTRL_TICKINT_Pos);				// Генерируем прерывания по переполнению.
 
 		// Настраиваем задержку, чтобы 1 тик был равен 1мс.
-		SysTick->LOAD = rcc_driver_->GetAHBClock() / 1000;
+		SysTick->LOAD = rcc_driver.GetAHBClock() / 1000;
+
+		SysTick->VAL = 0x00;
 
 		// Настраиваем приоритет.
 		NVIC_SetPriority(SysTick_IRQn, DeviceConfig::SystemTimerInterruptPriority);
 		NVIC_EnableIRQ(SysTick_IRQn);
 	}
-	#pragma clang diagnostic pop
 
 	void SystemTimer::Restart()
 	{
-		SysTick->CTRL &= ~(SysTick_CTRL_ENABLE_Msk	// Отключаем таймер.
-			| SysTick_CTRL_COUNTFLAG_Msk);			// Очищаем флаги переполнения.
-
 		// Сбрасываем предыдущее значение таймера и запускаем.
 		Clear();
 		Start();
 	}
 
-	/**
-	 * Я бы не хотел, чтобы этот метод можно было вызвать статически, но он должен быть доступен коду, владеющему
-	 * экземпляром класса.
-	 */
-	#pragma clang diagnostic push
-	#pragma ide diagnostic ignored "readability-convert-member-functions-to-static"
 	void SystemTimer::Start()
 	{
+		// Очищаем флаги переполнения.
+		SysTick->CTRL &= ~SysTick_CTRL_COUNTFLAG_Msk;
+
+		last_check_counter_time = system_timer_counter_ms;
+		isRunning = true;
+		++started_timers_in_current_time;
+
 		// Запускаем таймер.
 		SysTick->CTRL |= 1 << SysTick_CTRL_ENABLE_Pos;
-	}
-	#pragma clang diagnostic pop
 
-	/**
-	 * Я бы не хотел, чтобы этот метод можно было вызвать статически, но он должен быть доступен коду, владеющему
-	 * экземпляром класса.
-	 * Также блокируем warning на квалификатор const, т.к. константная сигнатура метода может ввести в заблуждение,
-	 * что ничего не изменяется, тогда как на самом деле мы изменяем с регистр таймера.
-	 */
-	#pragma clang diagnostic push
-	#pragma ide diagnostic ignored "readability-convert-member-functions-to-static"
-	#pragma ide diagnostic ignored "readability-make-member-function-const"
+	}
+
 	uint32_t SystemTimer::Stop()
 	{
+		// Получаем результат и обновляем значение счетчика.
+		uint32_t result = GetValue();
+
 		// Останавливаем таймер.
-		SysTick->CTRL &= ~SysTick_CTRL_ENABLE_Msk;
+		isRunning = false;
+		--started_timers_in_current_time;
 
-		return GetValue();
+		// Если запущенных таймеров больше нет - останавливаем и обнуляем общий счетчик.
+		if (!started_timers_in_current_time)
+		{
+			SysTick->CTRL &= ~SysTick_CTRL_ENABLE_Msk;
+			system_timer_counter_ms = 0;
+		}
+
+		return result;
 	}
-	#pragma clang diagnostic pop
 
-	uint32_t SystemTimer::GetValue() const
+	uint32_t SystemTimer::GetValue()
 	{
+		if (isRunning)
+		{
+			counter_ms_ += system_timer_counter_ms - last_check_counter_time;
+			last_check_counter_time = system_timer_counter_ms;
+		}
+
 		return counter_ms_;
 	}
 
 	void SystemTimer::SystemTimerInterruptHandler()
 	{
-		++instance.counter_ms_;
+		++system_timer_counter_ms;
 	}
 
 	uint32_t SystemTimer::WaitingForRegisterMaskSet(
@@ -107,16 +90,15 @@ namespace STM32F103XB
 		{
 		}
 
-		Stop();
-		return GetValue() > timeout_ms
+		return Stop() > timeout_ms
 			? 0
 			: timeout_ms - GetValue();
 	}
 
 	void SystemTimer::Clear()
 	{
+		last_check_counter_time = system_timer_counter_ms;
 		counter_ms_ = 0;
-		SysTick->VAL = 0x00;
 	}
 
 	extern "C"

@@ -7,6 +7,7 @@ namespace STM32F103XB
 
 	Middleware::ReturnCode RTCDriver::SetConfigurationLockState(LockState configuration_lock_state)
 	{
+		system_timer_->Clear();
 		switch(configuration_lock_state)
 		{
 			case LockState::Lock:
@@ -60,7 +61,6 @@ namespace STM32F103XB
 
 	Middleware::ReturnCode RTCDriver::SetAlarm(uint32_t seconds)
 	{
-		system_timer_->Clear();
 		// Входим в Configuration Mode.
 		auto configuration_lock_status = SetConfigurationLockState(LockState::Unlock);
 		if (Middleware::ReturnCode::OK != configuration_lock_status)

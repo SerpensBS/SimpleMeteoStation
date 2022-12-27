@@ -26,6 +26,9 @@ int main()
 		return static_cast<int>(status);
 	}
 
+	// Инициализация системного таймера.
+	STM32F103XB::SystemTimer::Init(*rcc_driver);
+
 	// Инициализация GPIO.
 	STM32F103XB::GPIODriver* gpio_driver = nullptr;
 	status = STM32F103XB::GPIODriver::CreateSingleInstance(gpio_driver);
@@ -73,17 +76,10 @@ int main()
 	logger.Log(Application::LogLevel::Info, "%s", "UART Initialization: OK");
 	logger.Log(Application::LogLevel::Trace, "UART3 BaudRate: %lu\n\r", uart_driver->GetCurrentBaudRate());
 
-	STM32F103XB::SystemTimer* system_timer = nullptr;
-	status = STM32F103XB::SystemTimer::CreateSingleInstance(*rcc_driver, system_timer);
-
-	if (Middleware::ReturnCode::OK < status || !system_timer)
-	{
-		logger.Log(Application::LogLevel::Error, "Failed to initialize system timer driver. Error code:  %d", status);
-		InfiniteLoop();
-	}
-
+	// Инициализация драйвера RTC.
+	STM32F103XB::SystemTimer system_timer;
 	STM32F103XB::RTCDriver* rtc_driver = nullptr;
-	status = STM32F103XB::RTCDriver::CreateSingleInstance(*system_timer, logger, rtc_driver, true);
+	status = STM32F103XB::RTCDriver::CreateSingleInstance(system_timer, logger, rtc_driver, true);
 
 	if (Middleware::ReturnCode::OK < status || !rtc_driver)
 	{
@@ -91,6 +87,7 @@ int main()
 		InfiniteLoop();
 	}
 
+	// Инициализация драйвера управления питанием.
 	STM32F103XB::PowerDriver* power_driver = nullptr;
 	status = STM32F103XB::PowerDriver::CreateSingleInstance(*dma_driver_channel2, *rtc_driver, logger, power_driver);
 

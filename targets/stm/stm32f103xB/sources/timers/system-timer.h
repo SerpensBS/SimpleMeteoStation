@@ -10,19 +10,14 @@ namespace STM32F103XB
 	{
 	 private:
 		/**
-		 * Singleton экземпляр драйвера системного таймера.
+		 * Общий счетчик для всех таймеров.
 		 */
-		static SystemTimer instance;
+		static uint32_t system_timer_counter_ms;
 
 		/**
-		 * Драйвер RCC.
+		 * Количество запущенных таймеров в текущий момент.
 		 */
-		RCCDriver* rcc_driver_ = nullptr;
-
-		/**
-		 * Флаг, предотвращающий повторную инициализацию драйвера системного таймера.
-		 */
-		bool isInitialized_ = false;
+		static uint32_t started_timers_in_current_time;
 
 		/**
 		 * Счетчик миллисекунд, отсчитанных таймером.
@@ -30,20 +25,19 @@ namespace STM32F103XB
 		uint32_t counter_ms_ = 0;
 
 		/**
-		 * Инициализация системного таймера.
+		 * Время последней проверки общего счетчика.
 		 */
-		inline void Init();
+		uint32_t last_check_counter_time = 0;
 
-		SystemTimer() = default;
-		~SystemTimer() = default;
+		/**
+		 * Запущен ли таймер в данный момент.
+		 */
+		bool isRunning = false;
 	 public:
 		/**
-		 * Создает и инициализирует единственный экземпляр драйвера системного таймера, если он не был создан ранее.
-		 * @param out_system_timer Инициализированный экземпляр драйвера системного таймера.
-		 * 						 Если драйвер уже был проинициализирован ранее - вернет nullptr.
-		 * @return Статус операции
+		 * Инициализация системного таймера.
 		 */
-		static Middleware::ReturnCode CreateSingleInstance(RCCDriver& rcc_driver, SystemTimer*& out_system_timer);
+		static void Init(RCCDriver& rcc_driver);
 
 		/**
 		 * Обработчик прерывания системного таймера.
@@ -59,22 +53,22 @@ namespace STM32F103XB
 		 * Получить количество миллисекунд, прошедших с момента запуска таймера.
 		 * @return Количество миллисекунд, прошедших с момента запуска таймера.
 		 */
-		[[nodiscard]] inline uint32_t GetValue() const;
+		uint32_t GetValue();
 
 		/**
 		 * Обнулить счетчик и перезапустить таймер.
 		 */
-		inline void Restart();
+		void Restart();
 
 		/**
 		 * Запустить таймер.
 		 */
-		inline void Start();
+		void Start();
 
 		/**
 		 * Остановить таймер.
 		 */
-		inline uint32_t Stop();
+		uint32_t Stop();
 
 		/**
 		 * Ожидаем установку значений в регистр по маске за отведенное время.
@@ -89,6 +83,9 @@ namespace STM32F103XB
 			uint32_t bit_mask,
 			uint32_t expected,
 			uint32_t timeout_ms);
+
+		SystemTimer() = default;
+		~SystemTimer() = default;
 	};
 }
 
