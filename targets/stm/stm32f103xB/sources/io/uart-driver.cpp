@@ -101,6 +101,8 @@ namespace STM32F103XB
 		SendMessage(message_text, message_length);
 	}
 
+	// TODO: Видимо, на большой скорости запрос на отправку нового сообщения прилетает тогда, когда мы можем записывать
+	//  в буфер старое. из-за этого меняется порядок вывода сообщений.
 	void UARTDriver::SendMessage(const char* message_text, uint32_t message_length)
 	{
 		// Если DMA в данный момент уже занят - кладем данные в буфер.

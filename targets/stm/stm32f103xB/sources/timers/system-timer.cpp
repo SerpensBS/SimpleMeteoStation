@@ -21,6 +21,12 @@ namespace STM32F103XB
 		NVIC_EnableIRQ(SysTick_IRQn);
 	}
 
+	void SystemTimer::Restart()
+	{
+		Clear();
+		Start();
+	}
+
 	void SystemTimer::Start()
 	{
 		// Очищаем флаги переполнения.
@@ -74,9 +80,13 @@ namespace STM32F103XB
 		volatile uint32_t& register_address,
 		uint32_t bit_mask,
 		uint32_t expected,
-		uint32_t timeout_ms)
+		uint32_t timeout_ms,
+		bool is_timer_restart)
 	{
-		Start();
+		// Если необходимо делать Restart - делаем.
+		is_timer_restart
+			? Restart()
+			: Start();
 
 		// Ждем выставки битов по маске или истечение отведенного на операцию времени.
 		while((register_address & bit_mask) != expected && timeout_ms > GetValue())

@@ -15,6 +15,7 @@ namespace STM32F103XB
 		 */
 		static constexpr uint32_t TargetHCLK = 2000000UL;
 		// Частота APB1 не может быть меньше чем 2MHz из-за ограничений I2C Slow Mode: RM0008 стр 758.
+		// В проекте не используемся делитель частоты, так что APB1 == AHB.
 		static_assert(2000000UL <= TargetHCLK);
 
 		/**
@@ -36,6 +37,11 @@ namespace STM32F103XB
 		 * Предельное время инициализации RTC в миллисекундах.
 		 */
 		static constexpr uint32_t RTCInitializationTimeoutMs = 5000;
+
+		/**
+		 * Предельное время на одну транзакцию I2C в миллисекундах.
+		 */
+		static constexpr uint32_t I2CTransactionTimeoutMs = 5;
 
 		/**
 		 * Приоритет прерываний DMA1->Channel2. Обрабатывает отправку в UART.

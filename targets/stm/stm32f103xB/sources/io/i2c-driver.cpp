@@ -1,4 +1,5 @@
 #include "i2c-driver.h"
+#include "config/device-config.h"
 
 namespace STM32F103XB
 {
@@ -6,6 +7,9 @@ namespace STM32F103XB
 
 	void I2CDriver::Init(I2C_TypeDef& i2c_register, RCCDriver& rcc_driver)
 	{
+		// Включаем тактирование I2C.
+		RCC->APB1ENR |= RCC_APB1ENR_I2C1EN;
+
 		// Отключаем I2C.
 		i2c_register.CR1 &= I2C_CR1_PE_Msk;
 
@@ -73,9 +77,6 @@ namespace STM32F103XB
 				return Middleware::ReturnCode::ERROR;
 			}
 
-			// Включаем I2C.
-			RCC->APB1ENR |= RCC_APB1ENR_I2C1EN;
-
 			// Инициализация I2C.
 			Init(i2c1.i2c_register_, rccDriver);
 			i2c1.isInitialized = true;
@@ -90,4 +91,240 @@ namespace STM32F103XB
 		return Middleware::ReturnCode::ERROR;
 	}
 
+	/**
+	 * Здесь мы очищаем регистры, поэтому этот метод не должен быть const.
+	 */
+	#pragma clang diagnostic push
+	#pragma ide diagnostic ignored "readability-make-member-function-const"
+	void I2CDriver::ClearStatusFlags()
+	{
+		(void)i2c_register_.SR1;
+		(void)i2c_register_.SR2;
+	}
+	#pragma clang diagnostic pop
+
+	I2CStatusCode I2CDriver::Start()
+	{
+		// Ждем когда освободится шина.
+		if (!timer_->WaitingForRegisterMaskSet(
+			i2c_register_.SR2, I2C_SR2_BUSY_Msk, 0, DeviceConfig::I2CTransactionTimeoutMs, true))
+		{
+			return I2CStatusCode::BUS_BUSY;
+		}
+
+		// Генерируем START.
+		i2c_register_.CR1 |= (1 << I2C_CR1_START_Pos);
+
+		// Ждем появления START Condition.
+		if (!timer_->WaitingForRegisterMaskSet(
+			i2c_register_.SR1, I2C_SR1_SB_Msk, I2C_SR1_SB_Msk, DeviceConfig::I2CTransactionTimeoutMs, true))
+		{
+			// Если условие не наступило - останавливаем генерацию сигнала START.
+			i2c_register_.CR1 &= ~I2C_CR1_START_Msk;
+			return I2CStatusCode::TIMEOUT;
+		}
+
+		return I2CStatusCode::OK;
+	}
+
+	void I2CDriver::Stop()
+	{
+		// Устанавливаем сигнал STOP на шине.
+		i2c_register_.CR1 |= (1 << I2C_CR1_STOP_Pos);
+	}
+
+	I2CStatusCode I2CDriver::RequestHandshake(uint8_t slave_address, I2CDirection direction)
+	{
+		auto status = Start();
+		if (I2CStatusCode::OK != status)
+		{
+			return status;
+		}
+
+		status = SendAddress(slave_address, direction);
+		return status;
+	}
+
+	I2CStatusCode I2CDriver::ReadByte(uint8_t* out_received_data)
+	{
+		if (!timer_->WaitingForRegisterMaskSet(
+			i2c_register_.SR1, I2C_SR1_RXNE_Msk, I2C_SR1_RXNE, DeviceConfig::I2CTransactionTimeoutMs, true))
+		{
+			return I2CStatusCode::TIMEOUT;
+		}
+
+		*out_received_data = static_cast<uint8_t>(i2c_register_.DR);
+
+		return I2CStatusCode::OK;
+	}
+
+	I2CStatusCode I2CDriver::SendAddress(uint8_t slave_address, I2CDirection direction)
+	{
+		// Смещаем адрес на 1 бит влево.
+		slave_address = static_cast<uint8_t>(slave_address << 1);
+
+		// Устанавливаем единицу в конце адреса, чтобы обозначить команду на чтение.
+		if (I2CDirection::Read == direction)
+		{
+			++slave_address;
+		}
+
+		i2c_register_.DR = slave_address;
+
+		if (!timer_->WaitingForRegisterMaskSet(
+			i2c_register_.SR1, I2C_SR1_ADDR_Msk, (1 << I2C_SR1_ADDR_Pos), DeviceConfig::I2CTransactionTimeoutMs, true))
+		{
+			return I2CStatusCode::ADDRESS_NOT_RESPONDING;
+		}
+
+		ClearStatusFlags();
+		return I2CStatusCode::OK;
+	}
+
+	I2CStatusCode I2CDriver::SendByte(uint8_t data)
+	{
+		if (!timer_->WaitingForRegisterMaskSet(
+			i2c_register_.SR1, I2C_SR1_TXE_Msk, (1 << I2C_SR1_TXE_Pos), DeviceConfig::I2CTransactionTimeoutMs, true))
+		{
+			return I2CStatusCode::TIMEOUT;
+		}
+
+		if (i2c_register_.SR1 & I2C_SR1_AF)
+		{
+			return I2CStatusCode::ACKNOWLEDGE_FAILURE;
+		}
+
+		i2c_register_.DR = data;
+		return I2CStatusCode::OK;
+	}
+
+	Middleware::ReturnCode I2CDriver::ReadData(
+		uint8_t slave_address,
+		uint8_t slave_address_register,
+		uint8_t* read_buffer,
+		uint32_t receive_bytes_count)
+	{
+		ClearStatusFlags();
+
+		// Генерируем сигнал START на шине и отправляем адрес.
+		I2CStatusCode status = RequestHandshake(slave_address, I2CDirection::Write);
+		switch(status)
+
+		{
+			case I2CStatusCode::OK:
+				break;
+			case I2CStatusCode::BUS_BUSY:
+				logger_->Log(Application::LogLevel::Error, "%s", "I2C Start Error: Line is busy.");
+				return Middleware::ReturnCode::ERROR;
+			case I2CStatusCode::TIMEOUT:
+				logger_->Log(Application::LogLevel::Error, "%s", "I2C Start Error: failed to set Start condition.");
+				return Middleware::ReturnCode::ERROR;
+			case I2CStatusCode::ADDRESS_NOT_RESPONDING:
+				logger_->Log(Application::LogLevel::Error, "%s", "I2C Send Address Error: Address not responding.");
+				Stop();
+				return Middleware::ReturnCode::ERROR;
+			/**
+			 * Всегда заполняем блок default, чтобы избежать ошибок при увеличении количества возможных проверяемых
+			 * кодов возврата.
+			 */
+			#pragma clang diagnostic push
+			#pragma ide diagnostic ignored "UnreachableCode"
+			default:
+				logger_->Log(Application::LogLevel::Error, "%s", "I2C Handshake Error: undefined error.");
+				return Middleware::ReturnCode::ERROR;
+			#pragma clang diagnostic pop
+		}
+
+
+		// Отправляем регистр, который будем читать.
+		status = SendByte(slave_address_register);
+		if (I2CStatusCode::OK != status)
+		{
+			switch(status)
+			{
+				case I2CStatusCode::TIMEOUT:
+					logger_->Log(Application::LogLevel::Error, "%s", "I2C Send Address Register Timeout Error.");
+					break;
+				case I2CStatusCode::ACKNOWLEDGE_FAILURE:
+					logger_->Log(Application::LogLevel::Error, "%s", "I2C Send Address Register Error: NACK Received.");
+					break;
+				/**
+				 * Всегда заполняем блок default, чтобы избежать ошибок при увеличении количества возможных проверяемых
+				 * кодов возврата.
+				 */
+				#pragma clang diagnostic push
+				#pragma ide diagnostic ignored "UnreachableCode"
+				default:
+					logger_->Log(Application::LogLevel::Error, "%s", "I2C Send Address Register Error: undefined error.");
+					break;
+				#pragma clang diagnostic pop
+			}
+
+			Stop();
+			return Middleware::ReturnCode::ERROR;
+		}
+
+		Stop();
+		// Генерируем повторный сигнал START на шине и снова отправляем адрес.
+		status = RequestHandshake(slave_address, I2CDirection::Read);
+		switch(status)
+		{
+			case I2CStatusCode::OK:
+				break;
+			case I2CStatusCode::BUS_BUSY:
+				logger_->Log(Application::LogLevel::Error, "%s", "I2C 2nd Start Error: Line is busy.");
+				return Middleware::ReturnCode::ERROR;
+			case I2CStatusCode::TIMEOUT:
+				logger_->Log(Application::LogLevel::Error, "%s", "I2C 2nd Start Error: failed to set Start condition.");
+				return Middleware::ReturnCode::ERROR;
+			case I2CStatusCode::ADDRESS_NOT_RESPONDING:
+				logger_->Log(Application::LogLevel::Error, "%s", "I2C 2nd Send Address Error: Address not responding.");
+				Stop();
+				return Middleware::ReturnCode::ERROR;
+			/**
+			 * Всегда заполняем блок default, чтобы избежать ошибок при увеличении количества возможных проверяемых
+			 * кодов возврата.
+			 */
+			#pragma clang diagnostic push
+			#pragma ide diagnostic ignored "UnreachableCode"
+			default:
+				logger_->Log(Application::LogLevel::Error, "%s", "I2C 2nd Handshake Error: undefined error.");
+				return Middleware::ReturnCode::ERROR;
+			#pragma clang diagnostic pop
+		}
+
+		for (uint32_t i = 0; i < receive_bytes_count; ++i)
+		{
+			status = ReadByte(&read_buffer[i]);
+			if (I2CStatusCode::OK != status)
+			{
+				switch(status)
+				{
+					case I2CStatusCode::TIMEOUT:
+						logger_->Log(Application::LogLevel::Error,
+							"I2C Read Data Timeout Error. Byte %d/%d.", i, receive_bytes_count);
+						break;
+					/**
+				 	* Всегда заполняем блок default, чтобы избежать ошибок при увеличении количества возможных проверяемых
+				 	* кодов возврата.
+					 */
+					#pragma clang diagnostic push
+					#pragma ide diagnostic ignored "UnreachableCode"
+					default:
+						logger_->Log(Application::LogLevel::Error,
+							"I2C Read Data Error: undefined error. Byte %d/%d.", i, receive_bytes_count);
+						break;
+					#pragma clang diagnostic pop
+				}
+
+				// В случае ошибки выходим из цикла.
+				break;
+			}
+		}
+
+		Stop();
+		return status == I2CStatusCode::OK
+			? Middleware::ReturnCode::OK
+			: Middleware::ReturnCode::ERROR;
+	}
 }
