@@ -44,6 +44,11 @@ namespace BMP280
 		uint8_t device_address_ = 0x00;
 
 		/**
+		 * Время выполнения измерения в мс.
+		 */
+		uint32_t measured_time_ms = 0x00;
+
+		/**
 		 * Logger.
 		 */
 		Application::Logger& logger_;
@@ -75,19 +80,19 @@ namespace BMP280
 		 * @param interface_ptr Интерфейс для реализации задержки
 		 */
 		static void DelayPlug(uint32_t period, void* interface_ptr);
-	 public:
-		/**
-		 * Инициализация датчика.
-		 * @return Статус операции
-		 */
-		Middleware::ReturnCode Initialization();
 
 		/**
 		 * Рассчитывает время измерений для датчика.
-		 * @param out_measurement_time Время одного измерения
 		 * @return Статус операции
 		 */
-		Middleware::ReturnCode ComputeMeasurementTime(uint32_t& out_measurement_time);
+		Middleware::ReturnCode ComputeMeasurementTime();
+	 public:
+		/**
+		 * Инициализация датчика.
+		 * @param power_mode Режим работы. Если указан Undefined - режим выставляться не будет.
+		 * @return Статус операции
+		 */
+		Middleware::ReturnCode Initialization(PowerMode power_mode = PowerMode::Undefined);
 
 		/**
 		 * Получить данные последнего измерения.
@@ -95,6 +100,9 @@ namespace BMP280
 		 * @return Статус операции
 		 */
 		Middleware::ReturnCode GetMeasureData(MeasurementData& measurement_data);
+
+		[[nodiscard]]
+		uint32_t GetMeasureTimeMs() const;
 
 		/**
 		 * Установить режим работы.

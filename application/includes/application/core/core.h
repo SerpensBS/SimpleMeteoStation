@@ -4,9 +4,9 @@
 #include "application/data/abstract/logger.h"
 #include "middleware/data/enums/return-codes.h"
 #include "application/interfaces/iclock.h"
-#include "middleware/interfaces/idisplay.h"
-#include "middleware/interfaces/isensor.h"
+#include "application/interfaces/isensor.h"
 #include "application/interfaces/isleep.h"
+#include "application/interfaces/idisplay.h"
 
 namespace Application
 {
@@ -27,10 +27,10 @@ namespace Application
 		 * @return Статус операции
 		 */
 		static Middleware::ReturnCode Run(
-			Middleware::ISensor* temperature_sensor,
-			Middleware::ISensor* pressure_sensor,
+			Application::ISensor* temperature_sensor,
+			Application::ISensor* pressure_sensor,
 			Application::ISleep* sleep_manager,
-			Middleware::IDisplay* display,
+			Application::IDisplay* display,
 			Application::IClock* clock,
 			Logger* logger
 		);

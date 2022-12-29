@@ -1,6 +1,6 @@
 namespace ApplicationTests
 {
-	Middleware::ReturnCode SensorMock::GetData(double* out_value)
+	Middleware::ReturnCode SensorMock::GetMeasureData(double* out_value)
 	{
 		*out_value = measured_value_;
 		return Middleware::ReturnCode::OK;

@@ -1,5 +1,7 @@
 #include "application/core/core.h"
+#include "config/bmp280-config.h"
 #include "bmp280/sensor.h"
+#include "sources/adapters/sensor-adapter.h"
 #include "sources/utils/uart-logger.h"
 #include "sources/core/power-driver.h"
 #include "sources/io/i2c-driver.h"
@@ -96,6 +98,7 @@ int main()
 		InfiniteLoop();
 	}
 
+	// Инициализируем драйвер I2C.
 	STM32F103XB::SystemTimer i2c_timer;
 	STM32F103XB::I2CDriver* i2c_driver = nullptr;
 	status = STM32F103XB::I2CDriver::CreateSingleInstance(*I2C1, *gpio_driver, *rcc_driver, i2c_timer, logger, i2c_driver);
@@ -106,27 +109,36 @@ int main()
 		InfiniteLoop();
 	}
 
-	uint8_t data[1];
-	status = i2c_driver->ReadData(0x76, 0xD0, data, 1);
-	logger.Log(Application::LogLevel::Trace, "I2C Read Status: %d. BMP280 id: 0x%X", status, data[0]);
+	logger.Log(Application::LogLevel::Info, "%s", "I2C Initialization: OK");
 
-	BMP280::SensorDriver bmp280(*i2c_driver, BMP2_I2C_INTF, *power_driver, 0x76, logger);
-	status = bmp280.Initialization();
-	logger.Log(Application::LogLevel::Trace, "BMP280 Init Status: %d.", status);
-	status = bmp280.SetPowerMode(BMP280::PowerMode::Normal);
-	logger.Log(Application::LogLevel::Trace, "BMP280 Set PowerMode Status: %d.", status);
-	uint32_t meas_time = 0;
-	status = bmp280.ComputeMeasurementTime(meas_time);
-	logger.Log(Application::LogLevel::Trace, "BMP280 Compute Meas Time. Time: . Status: %d.", status);
-	BMP280::MeasurementData m_data = {};
-	for (int i = 0; i < 6000000; ++i)
-	{}
-	status = bmp280.GetMeasureData(m_data);
-	logger.Log(Application::LogLevel::Trace, "BMP280 Temperature data: %d. Status: %d", m_data.Temperature_C, status);
+	// Инициализируем драйвер BMP280.
+	BMP280::SensorDriver bmp280(
+		*i2c_driver,
+		BMP2_I2C_INTF,
+		*power_driver,
+		STM32F103XB::BMP280Configuration::Bmp280I2CAddress,
+		logger);
+
+	status = bmp280.Initialization(BMP280::PowerMode::Sleep);
+	if (Middleware::ReturnCode::OK < status)
+	{
+		logger.Log(Application::LogLevel::Error, "Failed to initialize BMP280 by address 0x%X. Error code: %d",
+			STM32F103XB::BMP280Configuration::Bmp280I2CAddress,
+			status);
+		InfiniteLoop();
+	}
+
+	logger.Log(Application::LogLevel::Info,	"BMP280 by address 0x%X initialization: OK",
+		STM32F103XB::BMP280Configuration::Bmp280I2CAddress);
+	logger.Log(Application::LogLevel::Trace, "BMP280 calculated measure time: %dms.\n\r", bmp280.GetMeasureTimeMs());
+
+	// Создаем адаптеры.
+	STM32F103XB::SensorAdapter temperature_sensor(bmp280, STM32F103XB::SensorType::Temperature);
+	STM32F103XB::SensorAdapter pressure_sensor(bmp280, STM32F103XB::SensorType::AtmospherePressure);
 
 	// Запускаем основную логику приложения.
 	logger.Log(Application::LogLevel::Info, "%s", "Start Application...");
-	status = Application::Core::Run(nullptr, nullptr, power_driver, nullptr, rtc_driver, &logger);
+	status = Application::Core::Run(&temperature_sensor, &pressure_sensor, power_driver, nullptr, rtc_driver, &logger);
 
 	auto log_level = Middleware::ReturnCode::OK == status
 		? Application::LogLevel::Info

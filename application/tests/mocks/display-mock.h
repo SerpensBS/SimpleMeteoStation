@@ -1,7 +1,7 @@
 #ifndef SIMPLEMETEOSTATION_APPLICATION_TESTS_MOCKS_DISPLAY_MOCK_H_
 #define SIMPLEMETEOSTATION_APPLICATION_TESTS_MOCKS_DISPLAY_MOCK_H_
 
-#include "middleware/interfaces/idisplay.h"
+#include "application/interfaces/idisplay.h"
 
 namespace ApplicationTests
 {
@@ -11,7 +11,7 @@ namespace ApplicationTests
 	 * @tparam height_display Высота дисплея
 	 */
 	template<uint32_t width_display, uint32_t height_display>
-	class DisplayMock : public Middleware::IDisplay
+	class DisplayMock : public Application::IDisplay
 	{
 	 private:
 		/**
@@ -25,7 +25,6 @@ namespace ApplicationTests
 		void PrintScreen();
 	 public:
 		DisplayMock() = default;
-
 		~DisplayMock() override = default;
 
 		/**
@@ -42,7 +41,11 @@ namespace ApplicationTests
 		 * @param column Столбец на дисплее, на котором выводим сообщение.
 		 * @return Статус операции
 		 */
-		Middleware::ReturnCode PrintMessage(const char* message, uint32_t message_length, uint8_t row, uint8_t column) override;
+		Middleware::ReturnCode PrintMessage(
+			const char* message,
+			uint32_t message_length,
+			uint8_t row,
+			uint8_t column) override;
 	};
 }
 

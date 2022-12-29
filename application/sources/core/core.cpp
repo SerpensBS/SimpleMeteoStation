@@ -8,10 +8,11 @@
 
 namespace Application
 {
-	Middleware::ReturnCode Core::Run(Middleware::ISensor* temperature_sensor,
-		Middleware::ISensor* pressure_sensor,
+	Middleware::ReturnCode Core::Run(
+		Application::ISensor* temperature_sensor,
+		Application::ISensor* pressure_sensor,
 		Application::ISleep* sleep_manager,
-		Middleware::IDisplay* display,
+		Application::IDisplay* display,
 		Application::IClock* clock,
 		Logger* logger)
 	{

@@ -1,7 +1,7 @@
 #ifndef SIMPLEMETEOSTATION_APPLICATION_SOURCES_CONTROLLERS_DISPLAY_CONTROLLER_H_
 #define SIMPLEMETEOSTATION_APPLICATION_SOURCES_CONTROLLERS_DISPLAY_CONTROLLER_H_
 
-#include "middleware/interfaces/idisplay.h"
+#include "application/interfaces/idisplay.h"
 
 namespace Application
 {
@@ -14,7 +14,7 @@ namespace Application
 		/**
 		 * Экземпляр драйвера.
 		 */
-		Middleware::IDisplay* display_driver_ = nullptr;
+		IDisplay* display_driver_ = nullptr;
 	 public:
 		/**
 		 * Очистить дисплей.
@@ -38,7 +38,7 @@ namespace Application
 		 */
 		void PrintPressure(double pressure_value_in_mmHg);
 
-		explicit DisplayController(Middleware::IDisplay& display_driver)
+		explicit DisplayController(IDisplay& display_driver)
 			: display_driver_(&display_driver)
 		{
 		}

@@ -1,10 +1,10 @@
-#ifndef SIMPLEMETEOSTATION_MIDDLEWARE_INCLUDES_MIDDLEWARE_INTERFACES_IDISPLAY_H_
-#define SIMPLEMETEOSTATION_MIDDLEWARE_INCLUDES_MIDDLEWARE_INTERFACES_IDISPLAY_H_
+#ifndef SIMPLEMETEOSTATION_APPLICATION_INCLUDES_APPLICATION_INTERFACES_IDISPLAY_H_
+#define SIMPLEMETEOSTATION_APPLICATION_INCLUDES_APPLICATION_INTERFACES_IDISPLAY_H_
 
 #include <cstdint>
 #include "middleware/data/enums/return-codes.h"
 
-namespace Middleware
+namespace Application
 {
 	/**
 	 * Интерфейс драйвера дисплея.
@@ -12,13 +12,11 @@ namespace Middleware
 	class IDisplay
 	{
 	 public:
-		virtual ~IDisplay() = default;
-
 		/**
 		 * Очищает экран.
 		 * @return Статус операции
 		 */
-		virtual ReturnCode ClearScreen() = 0;
+		virtual Middleware::ReturnCode ClearScreen() = 0;
 
 		/**
 		 * Выводит сообщение на дисплей.
@@ -28,8 +26,14 @@ namespace Middleware
 		 * @param column Столбец на дисплее, на котором выводим сообщение.
 		 * @return Статус операции
 		 */
-		virtual ReturnCode PrintMessage(const char* message, uint32_t message_length, uint8_t row, uint8_t column) = 0;
+		virtual Middleware::ReturnCode PrintMessage(
+			const char* message,
+			uint32_t message_length,
+			uint8_t row,
+			uint8_t column) = 0;
+
+		virtual ~IDisplay() = default;
 	};
 }
 
-#endif //SIMPLEMETEOSTATION_MIDDLEWARE_INCLUDES_MIDDLEWARE_INTERFACES_IDISPLAY_H_
+#endif //SIMPLEMETEOSTATION_APPLICATION_INCLUDES_APPLICATION_INTERFACES_IDISPLAY_H_
