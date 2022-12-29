@@ -6,19 +6,19 @@ file (GLOB_RECURSE HEADER_FILES *.h)
 
 add_executable(${PROJECT_NAME} ${SOURCE_FILES} ${HEADER_FILES})
 
-# Подключаем библиотеки.
+# Указываем глобальный define для контроллера STM32F103C8T6. Нужен для корректной работы CMSIS.
+target_compile_definitions(CMSIS PUBLIC -DSTM32F103xB)
+# Подключаем зависимости.
 target_link_libraries(${PROJECT_NAME} PRIVATE
         Application
-        Middleware)
-
-# Подключаем CMSIS. Также указываем глобальный define для контроллера STM32F103C8T6.
-target_compile_definitions(CMSIS PUBLIC -DSTM32F103xB)
-target_link_libraries(${PROJECT_NAME} PRIVATE CMSIS)
+        Middleware
+        CMSIS
+        BMP280)
 
 # Шарим внутри библиотеки корневую директорию c приватными header'ами.
 target_include_directories(${PROJECT_NAME} PRIVATE . ./sources)
 
-# Стартовые файлы CMSIS.
+# Стартовые файлы.
 set(CMSIS_STARTUP_FILES startup/startup_stm32f103xb.s)
 # Скрипт linker'а.
 set(MCU_LINKER_SCRIPT ${CMAKE_CURRENT_SOURCE_DIR}/startup/STM32F103XB_FLASH.ld)

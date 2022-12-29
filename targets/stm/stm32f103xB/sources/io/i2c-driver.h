@@ -3,6 +3,7 @@
 
 #include "gpio-driver.h"
 #include "application/data/abstract/logger.h"
+#include "bmp280/abstract/interfaces/icommunication-bus.h"
 #include "cmsis/stm/stm32f1xx.h"
 #include "data/gpio-configuration.h"
 #include "middleware/data/enums/return-codes.h"
@@ -16,7 +17,7 @@ namespace STM32F103XB
 	/**
 	 * Драйвер I2C.
 	 */
-	class I2CDriver
+	class I2CDriver : public BMP280::ICommunicationBus
 	{
 	 private:
 		/**
@@ -136,7 +137,13 @@ namespace STM32F103XB
 			uint8_t slave_address,
 			uint8_t slave_address_register,
 			uint8_t* read_buffer,
-			uint32_t receive_bytes_count);
+			uint32_t receive_bytes_count) override;
+
+		Middleware::ReturnCode SendData(
+			uint8_t slave_address,
+			uint8_t slave_address_register,
+			const uint8_t* data_buffer,
+			uint32_t data_buffer_length) override;
 	};
 }
 

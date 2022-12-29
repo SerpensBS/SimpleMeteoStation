@@ -13,9 +13,10 @@ namespace STM32F103XB
 		/**
 		 * Тактовая частота, на которую будет настроена AHB.
 		 */
-		static constexpr uint32_t TargetHCLK = 2000000UL;
+		static constexpr uint32_t TargetHCLK = 8000000UL;
 		// Частота APB1 не может быть меньше чем 2MHz из-за ограничений I2C Slow Mode: RM0008 стр 758.
 		// В проекте не используемся делитель частоты, так что APB1 == AHB.
+		// TODO: Разобраться почему не работает стабильно на частоте меньше 8MHz.
 		static_assert(2000000UL <= TargetHCLK);
 
 		/**
